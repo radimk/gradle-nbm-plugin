@@ -1,0 +1,4 @@
+include 'plugin'
+
+rootProject.name = 'gradleNbmPlugin'
+project(':plugin').name = 'nbmPlugin'

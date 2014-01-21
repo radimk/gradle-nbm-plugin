@@ -1,0 +1,14 @@
+buildscript {
+    repositories {
+        maven {
+            url uri('../../plugin/build/repo')
+        }
+    }
+    dependencies {
+        classpath group: 'cz.kubacki.gradle.plugins',
+                   name: 'nbmPlugin',
+                version: '1.0-SNAPSHOT'
+    }
+}
+apply plugin: 'nbm'
+

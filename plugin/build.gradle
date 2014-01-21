@@ -1,0 +1,22 @@
+apply plugin: 'groovy'
+apply plugin: 'java'
+apply plugin: 'maven'
+
+dependencies {
+  compile gradleApi()
+  compile localGroovy()
+}
+repositories {
+    mavenCentral()
+}
+ 
+group='cz.kubacki.gradle.plugins'
+version='1.0-SNAPSHOT'
+ 
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            repository(url: uri("$buildDir/repo"))
+        }
+    }
+}
