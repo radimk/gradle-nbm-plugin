@@ -5,9 +5,18 @@ apply plugin: 'maven'
 dependencies {
   compile gradleApi()
   compile localGroovy()
+  compile "org.gradle:gradle-tooling-api:${gradle.gradleVersion}"
+  runtime 'org.slf4j:slf4j-simple:1.7.5'
+
+  testCompile "org.spockframework:spock-core:0.7-groovy-1.8", {
+    exclude module: "groovy-all"
+  }
 }
 repositories {
     mavenCentral()
+    maven {
+        url 'http://repo.gradle.org/gradle/libs-releases-local'
+    }
 }
  
 group='cz.kubacki.gradle.plugins'
