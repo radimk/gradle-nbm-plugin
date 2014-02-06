@@ -11,16 +11,31 @@ import org.junit.Test
 import static org.junit.Assert.*
 
 public class NbmPluginTest {
-  
-  @Test
-  public void 'nbm plugin adds nbm task to project when JavaPlugin already applied'() {
-    Project project = ProjectBuilder.builder().build()
-    project.project.plugins.apply(JavaPlugin)
-    project.project.plugins.apply(NbmPlugin)
 
-    def task = project.tasks.nbm
-    assertNotNull(task)
-    // assertTrue(task instanceof NbmTask)
-    assertTrue(project.tasks.jar in task.dependsOn)
-  }
+    @Test
+    public void 'fails without harness property'() {
+        Project project = ProjectBuilder.builder().build()
+        try {
+            project.project.plugins.apply(NbmPlugin)
+            project.project.plugins.apply(JavaPlugin)
+            fail('should fail if harness location is not known')
+        } catch (Exception e) {
+            // expected
+        }
+    }
+
+    @Test
+    public void 'nbm plugin adds nbm task to project when JavaPlugin already applied'() {
+        println('harness dir ' + System.getProperty('test.netbeans.harness.dir'))
+        assertNotNull(System.getProperty('test.netbeans.harness.dir'))
+        Project project = ProjectBuilder.builder().build()
+        project.ext.netBeansHarnessDir = System.getProperty('test.netbeans.harness.dir')
+        project.project.plugins.apply(JavaPlugin)
+        project.project.plugins.apply(NbmPlugin)
+
+        def task = project.tasks.nbm
+        assertNotNull(task)
+        // assertTrue(task instanceof NbmTask)
+        assertTrue(project.tasks.jar in task.dependsOn)
+    }
 }

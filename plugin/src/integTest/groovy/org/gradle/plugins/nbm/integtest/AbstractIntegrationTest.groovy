@@ -31,6 +31,7 @@ import static org.spockframework.util.Assert.fail
 abstract class AbstractIntegrationTest extends Specification {
     File integTestDir
     File buildFile
+    File gradlePropsFile
 
     def setup() {
         integTestDir = new File('build/integTest')
@@ -55,6 +56,12 @@ buildscript {
 """
         File settingsFile = createNewFile(integTestDir, 'settings.gradle')
         settingsFile << ''
+
+        gradlePropsFile = createNewFile(integTestDir, 'gradle.properties')
+        String harnessDir = System.getProperty("test.netbeans.harness.dir")
+        gradlePropsFile << """
+netBeansHarnessDir=$harnessDir
+"""
     }
 
     protected File createNewDir(File parent, String dirname) {
