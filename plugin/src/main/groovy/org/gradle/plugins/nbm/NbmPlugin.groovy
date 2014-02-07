@@ -22,6 +22,8 @@ public class NbmPlugin implements Plugin<Project> {
         project.tasks.withType(NbmTask.class).all { NbmTask task ->
 //            task.conventionMapping.version = { convention.outputVersion ?: project.version }
             task.conventionMapping.outputFile = { convention.outputFile }
+            task.conventionMapping.nbmBuildDir = { convention.nbmBuildDir }
+            task.conventionMapping.moduleName = { convention.moduleName }
         }
     }
 

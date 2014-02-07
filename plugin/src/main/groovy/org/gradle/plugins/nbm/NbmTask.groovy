@@ -5,27 +5,40 @@ import org.apache.tools.ant.types.Path
 import org.gradle.api.DefaultTask
 import org.gradle.api.internal.ConventionTask
 import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
 
 class NbmTask extends ConventionTask {
-//    @Input
-//    String version
+    @Input
+    String moduleName
 
     @OutputFile
     File outputFile
 
+    @OutputDirectory
+    File nbmBuildDir
+
     @TaskAction
     void generate() {
         project.logger.info "NbmTask running"
-        def file = getOutputFile()
-        if (!file.isFile()) {
-            file.parentFile.mkdirs()
-            file.createNewFile()
+        def nbmFile = getOutputFile()
+//        if (!nbmFile.isFile()) {
+//            nbmFile.parentFile.mkdirs()
+//            nbmFile.createNewFile()
+//        }
+        def nbmDir = getNbmBuildDir()
+        if (!nbmDir.isDirectory()) {
+            nbmDir.mkdirs()
         }
-        // file.write "Version: ${getVersion()}"
+        // nbmFile.write "Version: ${getVersion()}"
+
+        def moduleJarName = getModuleName().replace('.', '-')
 
         def makenbm = antBuilder().antProject.createTask("makenbm")
+        makenbm.productDir = new File(nbmDir, 'netbeans' + File.separator + 'extra') // TODO use cluster
+        makenbm.file = nbmFile
+        makenbm.module = "modules" + File.separator + moduleJarName + ".jar"
         makenbm.execute()
     }
 

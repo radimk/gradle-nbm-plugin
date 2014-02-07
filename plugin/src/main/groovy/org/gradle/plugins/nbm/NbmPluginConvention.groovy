@@ -12,4 +12,12 @@ class NbmPluginConvention {
     File getOutputFile() {
         project.file("$project.buildDir/gradle-module.nbm")
     }
+
+    File getNbmBuildDir() {
+        project.file("$project.buildDir/nbm")
+    }
+
+    String getModuleName() {
+        project.property("MODULE_NAME")
+    }
 }
