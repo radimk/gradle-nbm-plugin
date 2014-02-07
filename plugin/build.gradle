@@ -12,7 +12,7 @@ version='1.0-SNAPSHOT'
 
 // if (System.getProperty("test.netbeans.harness.dir") == null) {
 if (!hasProperty("test.netbeans.harness.dir")) {
-    throw new GradleException("NetBeans harness not found. Pass its location with -Dtest.netbeans.harness.dir=<harness_dir>")
+    throw new GradleException("NetBeans harness not found. Pass its location with -Ptest.netbeans.harness.dir=<harness_dir> or add to gradle.properties file.")
 } else {
     println 'Using ' + property("test.netbeans.harness.dir")
 }
@@ -21,6 +21,7 @@ dependencies {
   compile gradleApi()
   compile localGroovy()
   compile "org.gradle:gradle-tooling-api:${gradle.gradleVersion}"
+  compile "org.codehaus.mojo:nbm-maven-harness:7.4"
   runtime 'org.slf4j:slf4j-simple:1.7.5'
 
   testCompile "org.spockframework:spock-core:0.7-groovy-1.8", {

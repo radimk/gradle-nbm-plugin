@@ -16,6 +16,9 @@ public class NbmPlugin implements Plugin<Project> {
 
         project.logger.info "Registering deferred NBM plugin configuration..."
         project.plugins.withType(JavaPlugin) { configure(project) }
+
+        def convention = new NbmPluginConvention(project)
+        project.convention.plugins.nbm = convention
         project.tasks.withType(NbmTask.class).all { NbmTask task ->
 //            task.conventionMapping.version = { convention.outputVersion ?: project.version }
             task.conventionMapping.outputFile = { convention.outputFile }

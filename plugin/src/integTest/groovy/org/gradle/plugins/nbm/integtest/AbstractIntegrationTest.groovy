@@ -48,11 +48,24 @@ abstract class AbstractIntegrationTest extends Specification {
 
         buildFile << """
 buildscript {
+    repositories {
+        mavenCentral()
+    }
     dependencies {
         classpath files('../classes/main')
     }
 }
 
+repositories {
+    mavenCentral()
+}
+configurations {
+    harness
+}
+
+dependencies {
+    harness group: 'org.codehaus.mojo', name: 'nbm-maven-harness', version: '7.4'
+}
 """
         File settingsFile = createNewFile(integTestDir, 'settings.gradle')
         settingsFile << ''
