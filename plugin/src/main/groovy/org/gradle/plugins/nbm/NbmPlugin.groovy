@@ -7,9 +7,14 @@ import org.gradle.api.plugins.JavaPlugin
 
 public class NbmPlugin implements Plugin<Project> {
     private static final String NBM_TASK = 'nbm'
+    private static final String MANIFEST_TASK = 'generateModuleManifest'
 
     void apply(Project project) {
         project.tasks.add(NBM_TASK) << {
+            throw new IllegalStateException(
+                    "nbm is only valid when JavaPlugin is aplied; please update your build")
+        }
+        project.tasks.add(MANIFEST_TASK) << {
             throw new IllegalStateException(
                     "nbm is only valid when JavaPlugin is aplied; please update your build")
         }
@@ -25,6 +30,11 @@ public class NbmPlugin implements Plugin<Project> {
             task.conventionMapping.nbmBuildDir = { convention.nbmBuildDir }
             task.conventionMapping.moduleName = { convention.moduleName }
         }
+        project.tasks.withType(ModuleManifestTask.class).all { ModuleManifestTask task ->
+            task.conventionMapping.generatedManifestFile = { convention.generatedManifestFile }
+            task.conventionMapping.moduleBuildDir = { convention.moduleBuildDir }
+            task.conventionMapping.moduleName = { convention.moduleName }
+        }
     }
 
     private configure(Project project) {
@@ -37,6 +47,10 @@ public class NbmPlugin implements Plugin<Project> {
         }
         project.extensions.nbm.harnessDir = new File(project.property("netBeansHarnessDir"))
 
+        ModuleManifestTask manifestTask = project.tasks.replace(MANIFEST_TASK, ModuleManifestTask)
+        project.tasks.jar.manifest.from { manifestTask.generatedManifestFile }
+        project.tasks.jar.dependsOn(manifestTask)
+        
         // configure NBM task
         NbmTask nbmTask = project.tasks.replace(NBM_TASK, NbmTask)
         nbmTask.dependsOn(project.tasks.jar)

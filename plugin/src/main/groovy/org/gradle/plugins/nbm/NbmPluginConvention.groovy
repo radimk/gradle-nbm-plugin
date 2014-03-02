@@ -17,6 +17,14 @@ class NbmPluginConvention {
         project.file("$project.buildDir/nbm")
     }
 
+    File getModuleBuildDir() {
+        project.file("$project.buildDir/module")
+    }
+
+    File getGeneratedManifestFile() {
+        project.file("$project.buildDir/module/manifest.mf")
+    }
+
     String getModuleName() {
         project.property("MODULE_NAME")
     }

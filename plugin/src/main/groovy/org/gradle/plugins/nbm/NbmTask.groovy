@@ -44,6 +44,7 @@ class NbmTask extends ConventionTask {
 
     private AntBuilder antBuilder() {
         def antProject = ant.antProject
+        ant.project.getBuildListeners().firstElement().setMessageOutputLevel(3)
         Taskdef taskdef = antProject.createTask("taskdef")
         taskdef.classname = "org.netbeans.nbbuild.MakeNBM"
         taskdef.name = "makenbm"

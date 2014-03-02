@@ -1,6 +1,7 @@
 package org.gradle.plugins.nbm;
 
 import org.gradle.api.DefaultTask
+import org.gradle.api.Task
 import org.gradle.api.Project
 import org.gradle.api.plugins.GroovyPlugin
 import org.gradle.api.plugins.JavaPlugin
@@ -37,5 +38,22 @@ public class NbmPluginTest {
         assertNotNull(task)
         // assertTrue(task instanceof NbmTask)
         assertTrue(project.tasks.jar in task.dependsOn)
+    }
+
+    @Test
+    public void 'nbm plugin adds task to generate manifest used by JAR'() {
+        println('harness dir ' + System.getProperty('test.netbeans.harness.dir'))
+        assertNotNull(System.getProperty('test.netbeans.harness.dir'))
+        Project project = ProjectBuilder.builder().build()
+        project.ext.netBeansHarnessDir = System.getProperty('test.netbeans.harness.dir')
+        project.project.plugins.apply(JavaPlugin)
+        project.project.plugins.apply(NbmPlugin)
+
+        Task jarTask = project.tasks.find { jarTask -> jarTask.name == 'jar' }
+        assertNotNull(jarTask)
+        def manifestTasks = project.getTasks().withType(ModuleManifestTask)
+        assertNotNull(manifestTasks)
+        
+        assertTrue(manifestTasks.iterator().next() in jarTask.dependsOn)
     }
 }
