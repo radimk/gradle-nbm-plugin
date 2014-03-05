@@ -53,7 +53,7 @@ public class NbmPlugin implements Plugin<Project> {
         project.extensions.nbm.harnessDir = new File(project.property("netBeansHarnessDir"))
 
         ModuleManifestTask manifestTask = project.tasks.replace(MANIFEST_TASK, ModuleManifestTask)
-        project.tasks.jar.manifest.from { manifestTask.generatedManifestFile }
+        project.tasks.jar.manifest.from { manifestTask.getGeneratedManifestFile() }
         project.tasks.jar.dependsOn(manifestTask)
         
         // configure NBM task

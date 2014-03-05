@@ -3,8 +3,10 @@ package org.gradle.plugins.nbm
 import org.apache.tools.ant.taskdefs.Taskdef
 import org.apache.tools.ant.types.Path
 import org.gradle.api.DefaultTask
+import org.gradle.api.file.FileCollection
 import org.gradle.api.internal.ConventionTask
 import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.InputFiles
 import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
@@ -17,6 +19,11 @@ class NbmTask extends ConventionTask {
     @OutputDirectory
     File nbmBuildDir
 
+    @InputFiles
+    FileCollection getModuleFiles() {
+        project.files(project.tasks.netbeans.getModuleBuildDir()).builtBy(project.tasks.netbeans)
+    }
+
     private NbmPluginExtension netbeansExt() {
         project.extensions.nbm
     }
@@ -25,20 +32,15 @@ class NbmTask extends ConventionTask {
     void generate() {
         project.logger.info "NbmTask running"
         def nbmFile = getOutputFile()
-//        if (!nbmFile.isFile()) {
-//            nbmFile.parentFile.mkdirs()
-//            nbmFile.createNewFile()
-//        }
         def nbmDir = getNbmBuildDir()
         if (!nbmDir.isDirectory()) {
             nbmDir.mkdirs()
         }
-        // nbmFile.write "Version: ${getVersion()}"
 
         def moduleJarName = netbeansExt().moduleName.replace('.', '-')
 
         def makenbm = antBuilder().antProject.createTask("makenbm")
-        makenbm.productDir = new File(nbmDir, 'netbeans' + File.separator + 'extra') // TODO use cluster
+        makenbm.productDir = project.tasks.netbeans.getModuleBuildDir()
         makenbm.file = nbmFile
         makenbm.module = "modules" + File.separator + moduleJarName + ".jar"
         makenbm.execute()

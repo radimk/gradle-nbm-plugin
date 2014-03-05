@@ -22,6 +22,6 @@ class NbmPluginConvention {
     }
 
     File getGeneratedManifestFile() {
-        project.file("$project.buildDir/module/manifest.mf")
+        project.file("$project.buildDir/generated-manifest.mf")
     }
 }
