@@ -24,8 +24,4 @@ class NbmPluginConvention {
     File getGeneratedManifestFile() {
         project.file("$project.buildDir/module/manifest.mf")
     }
-
-    String getModuleName() {
-        project.property("MODULE_NAME")
-    }
 }

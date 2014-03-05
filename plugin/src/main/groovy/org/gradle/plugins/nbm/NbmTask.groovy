@@ -10,14 +10,16 @@ import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
 
 class NbmTask extends ConventionTask {
-    @Input
-    String moduleName
 
     @OutputFile
     File outputFile
 
     @OutputDirectory
     File nbmBuildDir
+
+    private NbmPluginExtension netbeansExt() {
+        project.extensions.nbm
+    }
 
     @TaskAction
     void generate() {
@@ -33,7 +35,7 @@ class NbmTask extends ConventionTask {
         }
         // nbmFile.write "Version: ${getVersion()}"
 
-        def moduleJarName = getModuleName().replace('.', '-')
+        def moduleJarName = netbeansExt().moduleName.replace('.', '-')
 
         def makenbm = antBuilder().antProject.createTask("makenbm")
         makenbm.productDir = new File(nbmDir, 'netbeans' + File.separator + 'extra') // TODO use cluster

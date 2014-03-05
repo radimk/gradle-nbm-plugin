@@ -12,27 +12,21 @@ import java.util.jar.Attributes
 import java.util.jar.Manifest
 
 class ModuleManifestTask extends ConventionTask {
-    @Input
-    String moduleName
-
     @OutputFile
     File generatedManifestFile
 
-    @OutputDirectory
-    File moduleBuildDir
+    private NbmPluginExtension netbeansExt() {
+        project.extensions.nbm
+    }
 
     @TaskAction
     void generate() {
         def manifestFile = getGeneratedManifestFile()
         project.logger.info "Generating NetBeans module manifest $generatedManifestFile"
-        def moduleDir = getModuleBuildDir()
-        if (!moduleDir.isDirectory()) {
-            moduleDir.mkdirs()
-        }
 
         def manifest = new Manifest()
         manifest.getMainAttributes().put(Attributes.Name.MANIFEST_VERSION, '1.0')
-        manifest.getMainAttributes().put(new Attributes.Name('OpenIDE-Module'), moduleName)
+        manifest.getMainAttributes().put(new Attributes.Name('OpenIDE-Module'), netbeansExt().moduleName)
         def os = new FileOutputStream(manifestFile)
         manifest.write(os)
         os.close()

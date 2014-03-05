@@ -7,6 +7,7 @@ import org.gradle.api.plugins.JavaPlugin
 
 public class NbmPlugin implements Plugin<Project> {
     private static final String NBM_TASK = 'nbm'
+    private static final String NETBEANS_TASK = 'netbeans'
     private static final String MANIFEST_TASK = 'generateModuleManifest'
 
     void apply(Project project) {
@@ -15,6 +16,10 @@ public class NbmPlugin implements Plugin<Project> {
                     "nbm is only valid when JavaPlugin is aplied; please update your build")
         }
         project.tasks.add(MANIFEST_TASK) << {
+            throw new IllegalStateException(
+                    "nbm is only valid when JavaPlugin is aplied; please update your build")
+        }
+        project.tasks.add(NETBEANS_TASK) << {
             throw new IllegalStateException(
                     "nbm is only valid when JavaPlugin is aplied; please update your build")
         }
@@ -28,12 +33,12 @@ public class NbmPlugin implements Plugin<Project> {
 //            task.conventionMapping.version = { convention.outputVersion ?: project.version }
             task.conventionMapping.outputFile = { convention.outputFile }
             task.conventionMapping.nbmBuildDir = { convention.nbmBuildDir }
-            task.conventionMapping.moduleName = { convention.moduleName }
         }
         project.tasks.withType(ModuleManifestTask.class).all { ModuleManifestTask task ->
             task.conventionMapping.generatedManifestFile = { convention.generatedManifestFile }
+        }
+        project.tasks.withType(NetBeansTask.class).all { NetBeansTask task ->
             task.conventionMapping.moduleBuildDir = { convention.moduleBuildDir }
-            task.conventionMapping.moduleName = { convention.moduleName }
         }
     }
 
@@ -52,7 +57,10 @@ public class NbmPlugin implements Plugin<Project> {
         project.tasks.jar.dependsOn(manifestTask)
         
         // configure NBM task
+        NetBeansTask netbeansTask = project.tasks.replace(NETBEANS_TASK, NetBeansTask)
+        netbeansTask.dependsOn(project.tasks.jar)
+        
         NbmTask nbmTask = project.tasks.replace(NBM_TASK, NbmTask)
-        nbmTask.dependsOn(project.tasks.jar)
+        nbmTask.dependsOn(netbeansTask)
     }
 }

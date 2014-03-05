@@ -34,10 +34,12 @@ public class NbmPluginTest {
         project.project.plugins.apply(JavaPlugin)
         project.project.plugins.apply(NbmPlugin)
 
-        def task = project.tasks.nbm
-        assertNotNull(task)
+        def nbmTask = project.tasks.nbm
+        assertNotNull(nbmTask)
         // assertTrue(task instanceof NbmTask)
-        assertTrue(project.tasks.jar in task.dependsOn)
+        assertTrue(project.tasks.netbeans in nbmTask.dependsOn)
+        def netbeansTask = project.tasks.netbeans
+        assertTrue(project.tasks.jar in netbeansTask.dependsOn)
     }
 
     @Test

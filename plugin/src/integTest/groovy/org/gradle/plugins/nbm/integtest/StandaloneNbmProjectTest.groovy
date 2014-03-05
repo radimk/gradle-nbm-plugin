@@ -38,7 +38,9 @@ apply plugin: org.gradle.plugins.nbm.NbmPlugin
 apply plugin: 'java'
 apply plugin: org.gradle.plugins.nbm.NbmPlugin
 
-MODULE_NAME='com.foo.acme'
+nbm {
+  moduleName = 'com.foo.acme'
+}
 """
         when:
         GradleProject project = runTasks(integTestDir, "nbm")
