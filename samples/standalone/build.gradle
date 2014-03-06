@@ -20,14 +20,6 @@ repositories {
     mavenCentral()
 }
 
-configurations {
-    harness
-}
-
-dependencies {
-    harness group: 'org.codehaus.mojo', name: 'nbm-maven-harness', version: '7.4'
-}
-
 nbm {
   moduleName = 'com.foo.acme'
 }

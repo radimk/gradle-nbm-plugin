@@ -55,7 +55,7 @@ class NbmTask extends ConventionTask {
         Taskdef taskdef = antProject.createTask("taskdef")
         taskdef.classname = "org.netbeans.nbbuild.MakeNBM"
         taskdef.name = "makenbm"
-        taskdef.classpath = new Path(antProject, project.configurations.harness.asPath)
+        taskdef.classpath = new Path(antProject, netbeansExt().harnessConfiguration.asPath)
         taskdef.execute()
         return getAnt();
     }

@@ -43,7 +43,7 @@ public class NbmPlugin implements Plugin<Project> {
     private configure(Project project) {
         project.logger.info "Configuring NBM plugin..."
 
-        project.extensions.nbm = new NbmPluginExtension()
+        project.extensions.nbm = new NbmPluginExtension(project)
 
         if (!project.hasProperty("netBeansHarnessDir")) {
             throw new GradleException('netBeansHarnessDir property is not set.')
