@@ -44,9 +44,17 @@ class NetBeansTask extends ConventionTask {
             it.rename('.*\\.jar', moduleJarName)
         }
 
-        def nbTask = antBuilder().antProject.createTask("genlist")
+        AntBuilder antBuilder = antBuilder()
+        def moduleXmlTask = antBuilder.antProject.createTask('module-xml')
+        moduleXmlTask.xmldir = new File(moduleDir, 'config' + File.separator + 'Modules')
+        FileSet moduleFileSet = new FileSet()
+        moduleFileSet.setFile(new File(modulesDir, moduleJarName))
+        moduleXmlTask.addEnabled(moduleFileSet)
+        moduleXmlTask.execute()
+
+        def nbTask = antBuilder.antProject.createTask('genlist')
         nbTask.outputfiledir = moduleDir
-        nbTask.module = "modules" + File.separator + moduleJarName
+        nbTask.module = 'modules' + File.separator + moduleJarName
         FileSet fs = nbTask.createFileSet()
         fs.dir = moduleDir
         fs.setIncludes('**')
