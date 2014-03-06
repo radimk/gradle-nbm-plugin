@@ -48,7 +48,8 @@ class NetBeansTask extends ConventionTask {
         def moduleXmlTask = antBuilder.antProject.createTask('module-xml')
         moduleXmlTask.xmldir = new File(moduleDir, 'config' + File.separator + 'Modules')
         FileSet moduleFileSet = new FileSet()
-        moduleFileSet.setFile(new File(modulesDir, moduleJarName))
+        moduleFileSet.setDir(moduleDir)
+        moduleFileSet.setIncludes('modules' + File.separator + moduleJarName)
         moduleXmlTask.addEnabled(moduleFileSet)
         moduleXmlTask.execute()
 

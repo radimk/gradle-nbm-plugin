@@ -1,5 +1,7 @@
 buildscript {
     repositories {
+        jcenter()
+        mavenCentral()
         maven {
             url uri('../../plugin/build/repo')
         }
@@ -8,7 +10,42 @@ buildscript {
         classpath group: 'cz.kubacki.gradle.plugins',
                    name: 'nbmPlugin',
                 version: '1.0-SNAPSHOT'
+        gradleApi()
     }
 }
 apply plugin: 'nbm'
+apply plugin: 'java'
 
+repositories {
+    mavenCentral()
+}
+
+configurations {
+    harness
+}
+
+dependencies {
+    harness group: 'org.codehaus.mojo', name: 'nbm-maven-harness', version: '7.4'
+}
+
+nbm {
+  moduleName = 'com.foo.acme'
+}
+
+// set netbeansInstallDir project property
+
+task netBeansRun(type: Exec) {
+    doFirst {
+        if (!project.hasProperty('netBeansInstallDir')) {
+            throw new GradleException("missing netBeansInstallDir property")
+        }
+        def confFile = project.file("$project.buildDir/testuserdir/etc/netbeans.conf")
+        confFile.parentFile.mkdirs()
+        confFile.write "netbeans_extraclusters=\"$project.buildDir/module\""
+    }
+
+    workingDir "${project.buildDir}"
+
+    //on windows:
+    commandLine netBeansInstallDir + '/bin/netbeans', '--userdir', "$project.buildDir/testuserdir"
+}
