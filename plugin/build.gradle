@@ -27,6 +27,7 @@ dependencies {
   testCompile "org.spockframework:spock-core:0.7-groovy-1.8", {
     exclude module: "groovy-all"
   }
+  testCompile "junit:junit:4.11"
 }
 repositories {
     mavenCentral()

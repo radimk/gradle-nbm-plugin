@@ -30,8 +30,6 @@ public class NbmPlugin implements Plugin<Project> {
         def convention = new NbmPluginConvention(project)
         project.convention.plugins.nbm = convention
         project.tasks.withType(NbmTask.class).all { NbmTask task ->
-//            task.conventionMapping.version = { convention.outputVersion ?: project.version }
-            task.conventionMapping.outputFile = { convention.outputFile }
             task.conventionMapping.nbmBuildDir = { convention.nbmBuildDir }
         }
         project.tasks.withType(ModuleManifestTask.class).all { ModuleManifestTask task ->

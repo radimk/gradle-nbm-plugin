@@ -9,10 +9,6 @@ class NbmPluginConvention {
         this.project = project
     }
 
-    File getOutputFile() {
-        project.file("$project.buildDir/gradle-module.nbm")
-    }
-
     File getNbmBuildDir() {
         project.file("$project.buildDir/nbm")
     }

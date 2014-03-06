@@ -14,7 +14,10 @@ import org.gradle.api.tasks.TaskAction
 class NbmTask extends ConventionTask {
 
     @OutputFile
-    File outputFile
+    File getOutputFile() {
+        def moduleJarName = netbeansExt().moduleName.replace('.', '-')
+        new File(getNbmBuildDir(), moduleJarName + '.nbm')
+    }
 
     @OutputDirectory
     File nbmBuildDir

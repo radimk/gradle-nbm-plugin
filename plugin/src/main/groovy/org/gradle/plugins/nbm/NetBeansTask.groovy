@@ -61,6 +61,11 @@ class NetBeansTask extends ConventionTask {
         taskdef.name = "genlist"
         taskdef.classpath = new Path(antProject, project.configurations.harness.asPath)
         taskdef.execute()
+        Taskdef taskdef2 = antProject.createTask("taskdef")
+        taskdef2.classname = "org.netbeans.nbbuild.CreateModuleXML"
+        taskdef2.name = "module-xml"
+        taskdef2.classpath = new Path(antProject, project.configurations.harness.asPath)
+        taskdef2.execute()
         return getAnt();
     }
 }
