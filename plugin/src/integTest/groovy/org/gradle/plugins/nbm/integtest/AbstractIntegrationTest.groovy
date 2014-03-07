@@ -58,6 +58,9 @@ buildscript {
 
 repositories {
     mavenCentral()
+    maven {
+        url 'http://bits.netbeans.org/maven2/'
+    }
 }
 """
         File settingsFile = createNewFile(integTestDir, 'settings.gradle')

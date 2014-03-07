@@ -27,6 +27,10 @@ class ModuleManifestTask extends ConventionTask {
         def manifest = new Manifest()
         manifest.getMainAttributes().put(Attributes.Name.MANIFEST_VERSION, '1.0')
         manifest.getMainAttributes().put(new Attributes.Name('OpenIDE-Module'), netbeansExt().moduleName)
+        manifest.getMainAttributes().put(new Attributes.Name('OpenIDE-Module-Requires'), 'org.openide.modules.ModuleFormat1')
+        if (netbeansExt().specificationVersion) {
+            manifest.getMainAttributes().put(new Attributes.Name('OpenIDE-Module-Specification-Version'), netbeansExt().specificationVersion)
+        }
         def os = new FileOutputStream(manifestFile)
         manifest.write(os)
         os.close()

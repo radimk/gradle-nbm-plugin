@@ -18,10 +18,25 @@ apply plugin: 'java'
 
 repositories {
     mavenCentral()
+    maven {
+        url 'http://bits.netbeans.org/maven2/'
+    }
 }
 
 nbm {
   moduleName = 'com.foo.acme'
+}
+
+compileJava {
+  doFirst {
+    project.file("$project.buildDir/src/main/generated-sources").mkdirs()
+  }
+  options.compilerArgs = ['-s', "$project.buildDir/src/main/generated-sources"]
+}
+
+dependencies {
+    compile 'org.netbeans.api:org-openide-awt:RELEASE74'
+    compile 'org.netbeans.api:org-openide-util:RELEASE74'
 }
 
 // set netbeansInstallDir project property

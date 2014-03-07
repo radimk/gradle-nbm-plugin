@@ -10,7 +10,7 @@ import org.gradle.api.artifacts.Configuration
 class NbmPluginExtension {
     File harnessDir
     String moduleName
-    String moduleVersion
+    String specificationVersion
     boolean eager
     boolean autoload
 

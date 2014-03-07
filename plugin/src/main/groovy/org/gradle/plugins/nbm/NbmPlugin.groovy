@@ -51,6 +51,10 @@ public class NbmPlugin implements Plugin<Project> {
         project.extensions.nbm.harnessDir = new File(project.property("netBeansHarnessDir"))
 
         ModuleManifestTask manifestTask = project.tasks.replace(MANIFEST_TASK, ModuleManifestTask)
+        def userManifest = project.file('src' + File.separator + 'main' + File.separator + 'nbm' + File.separator + 'manifest.mf')
+        if (userManifest.exists()) {
+            project.tasks.jar.manifest.from { userManifest }
+        }
         project.tasks.jar.manifest.from { manifestTask.getGeneratedManifestFile() }
         project.tasks.jar.dependsOn(manifestTask)
         
