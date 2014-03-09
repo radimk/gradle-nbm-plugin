@@ -1,7 +1,14 @@
 package org.gradle.plugins.nbm.integtest
 
+import com.google.common.base.Splitter
+import com.google.common.collect.Iterables
 import org.gradle.tooling.BuildException
 import org.gradle.tooling.model.GradleProject
+
+import java.util.jar.Attributes
+import java.util.jar.JarFile
+import java.util.zip.ZipFile
+
 import static org.hamcrest.MatcherAssert.*
 
 class StandaloneNbmProjectTest extends AbstractIntegrationTest {
@@ -126,5 +133,15 @@ public final class HelloAction implements ActionListener {
         assertThat(new File(getIntegTestDir(), 'build/module/config/Modules/com-foo-acme.xml'), FileMatchers.exists())
         assertThat(new File(getIntegTestDir(), 'build/module/modules/com-foo-acme.jar'), FileMatchers.exists())
         assertThat(new File(getIntegTestDir(), 'build/module/update_tracking/com-foo-acme.xml'), FileMatchers.exists())
+
+        Iterables.contains(moduleDependencies(new File(getIntegTestDir(), 'build/module/modules/com-foo-acme.jar')), 'org.openide.util > 8.33.1')
+        Iterables.contains(moduleDependencies(new File(getIntegTestDir(), 'build/module/modules/com-foo-acme.jar')), 'org.openide.awt > 7.59.1')
+    }
+
+    private Iterable<String> moduleDependencies(File jarFile) {
+        JarFile jar = new JarFile(jarFile)
+        def attrs = jar.manifest.mainAttributes
+        def attrValue = attrs.getValue(new Attributes.Name('OpenIDE-Module-Module-Dependencies'))
+        Splitter.on(',').trimResults().split(attrValue != null ? attrValue : '')
     }
 }
