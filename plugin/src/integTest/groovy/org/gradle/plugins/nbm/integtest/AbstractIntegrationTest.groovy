@@ -67,10 +67,6 @@ repositories {
         settingsFile << ''
 
         gradlePropsFile = createNewFile(integTestDir, 'gradle.properties')
-        String harnessDir = System.getProperty("test.netbeans.harness.dir")
-        gradlePropsFile << """
-netBeansHarnessDir=$harnessDir
-"""
     }
 
     protected File createNewDir(File parent, String dirname) {

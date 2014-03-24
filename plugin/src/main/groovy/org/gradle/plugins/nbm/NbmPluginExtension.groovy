@@ -8,7 +8,6 @@ import org.gradle.api.artifacts.Configuration
  * @author radim
  */
 class NbmPluginExtension {
-    File harnessDir
     String moduleName
     String specificationVersion
     boolean eager
