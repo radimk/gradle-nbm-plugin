@@ -7,6 +7,7 @@ import org.gradle.api.plugins.GroovyPlugin
 import org.gradle.api.plugins.JavaPlugin
 import org.gradle.api.tasks.TaskExecutionException
 import org.gradle.testfixtures.ProjectBuilder
+import org.junit.Ignore
 import org.junit.Test
 
 import static org.junit.Assert.*
@@ -57,5 +58,20 @@ public class NbmPluginTest {
         assertNotNull(manifestTasks)
         
         assertTrue(manifestTasks.iterator().next() in jarTask.dependsOn)
+    }
+
+    @Test
+    public void 'nbm plugin hooks directories for merged properties'() {
+        println('harness dir ' + System.getProperty('test.netbeans.harness.dir'))
+        assertNotNull(System.getProperty('test.netbeans.harness.dir'))
+        Project project = ProjectBuilder.builder().build()
+        project.ext.netBeansHarnessDir = System.getProperty('test.netbeans.harness.dir')
+        project.project.plugins.apply(JavaPlugin)
+        project.project.plugins.apply(NbmPlugin)
+        assertNotNull(project.project.sourceSets.main.output)
+        assertTrue(project.tasks.getByName('compileJava').outputs.files.contains(project.file('build/generated-resources/main')))
+        assertTrue(project.tasks.getByName('processResources').outputs.files.contains(project.file('build/generated-resources/resources')))
+        assertTrue(project.tasks.getByName('mergeProperties').outputs.files.contains(project.file('build/generated-resources/output')))
+        // assertTrue(project.project.sourceSets.main.output.dirs.toString(), project.project.sourceSets.main.output.dirs.contains(project.file('build/generated-resources/output')))
     }
 }

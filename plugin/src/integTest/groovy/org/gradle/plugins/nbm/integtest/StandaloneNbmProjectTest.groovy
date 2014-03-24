@@ -121,8 +121,14 @@ public final class HelloAction implements ActionListener {
     }
 }
 """
+        def resDir = createNewDir(integTestDir, 'src/main/resources/com/mycompany/standalone')
+        createNewFile(resDir, 'Bundle.properties') << """
+MyKey=value
+"""
+
         when:
         GradleProject project = runTasks(integTestDir, "netbeans")
+        def moduleJar = new File(getIntegTestDir(), 'build/module/modules/com-foo-acme.jar')
 
         then:
         // TODO module dependency in manifest
@@ -131,11 +137,13 @@ public final class HelloAction implements ActionListener {
         project.tasks.find { it.name == 'nbm'} != null
         assertThat(new File(getIntegTestDir(), 'build/classes/main/META-INF/services/com.mycompany.standalone.Service'), FileMatchers.exists())
         assertThat(new File(getIntegTestDir(), 'build/module/config/Modules/com-foo-acme.xml'), FileMatchers.exists())
-        assertThat(new File(getIntegTestDir(), 'build/module/modules/com-foo-acme.jar'), FileMatchers.exists())
+        assertThat(moduleJar, FileMatchers.exists())
         assertThat(new File(getIntegTestDir(), 'build/module/update_tracking/com-foo-acme.xml'), FileMatchers.exists())
 
-        Iterables.contains(moduleDependencies(new File(getIntegTestDir(), 'build/module/modules/com-foo-acme.jar')), 'org.openide.util > 8.33.1')
-        Iterables.contains(moduleDependencies(new File(getIntegTestDir(), 'build/module/modules/com-foo-acme.jar')), 'org.openide.awt > 7.59.1')
+        Iterables.contains(moduleDependencies(moduleJar), 'org.openide.util > 8.33.1')
+        Iterables.contains(moduleDependencies(moduleJar), 'org.openide.awt > 7.59.1')
+        moduleProperties(moduleJar, 'com/mycompany/standalone/Bundle.properties').getProperty('MyKey') == 'value'
+        moduleProperties(moduleJar, 'com/mycompany/standalone/Bundle.properties').getProperty('CTL_HelloAction') == 'Say hello'
     }
 
     private Iterable<String> moduleDependencies(File jarFile) {
@@ -143,5 +151,14 @@ public final class HelloAction implements ActionListener {
         def attrs = jar.manifest.mainAttributes
         def attrValue = attrs.getValue(new Attributes.Name('OpenIDE-Module-Module-Dependencies'))
         Splitter.on(',').trimResults().split(attrValue != null ? attrValue : '')
+    }
+
+    private Properties moduleProperties(File jarFile, String resourceName) {
+        JarFile jar = new JarFile(jarFile)
+        def is = jar.getInputStream(jar.getEntry(resourceName))
+        def props = new Properties()
+        props.load(is)
+        is.close()
+        props
     }
 }

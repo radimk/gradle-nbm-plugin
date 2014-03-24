@@ -3,7 +3,10 @@ package org.gradle.plugins.nbm
 import org.gradle.api.GradleException;
 import org.gradle.api.Project
 import org.gradle.api.Plugin
+import org.gradle.api.file.CopySpec
 import org.gradle.api.plugins.JavaPlugin
+import org.gradle.api.tasks.Copy
+import org.gradle.api.tasks.compile.JavaCompile
 
 public class NbmPlugin implements Plugin<Project> {
     private static final String NBM_TASK = 'nbm'
@@ -64,5 +67,51 @@ public class NbmPlugin implements Plugin<Project> {
         
         NbmTask nbmTask = project.tasks.replace(NBM_TASK, NbmTask)
         nbmTask.dependsOn(netbeansTask)
+
+        setupPropertiesMerging(project)
+    }
+
+    private void setupPropertiesMerging(Project project) {
+        def mergeTask = project.tasks.add('mergeProperties', MergePropertiesTask)
+        project.tasks.findByName('jar').dependsOn(mergeTask)
+        def generatedClasses = "${project.buildDir}/generated-resources/main"
+        def generatedResources = "${project.buildDir}/generated-resources/resources"
+        def generatedOutput = "${project.buildDir}/generated-resources/output"
+
+        project.sourceSets.main.output.dir(generatedOutput, builtBy: 'mergeProperties')
+        def compileJavaTask = project.tasks.getByName('compileJava')
+        compileJavaTask.outputs.dir(generatedClasses)
+        compileJavaTask.doLast { JavaCompile it ->
+            new File(generatedClasses).mkdirs()
+            project.copy {
+                from project.sourceSets.main.output.classesDir
+                into generatedClasses
+                include '**/*.properties'
+                includeEmptyDirs false
+            }
+            project.fileTree(dir: project.sourceSets.main.output.classesDir).include('**/*.properties').visit {
+                if (!it.isDirectory()) {
+                    it.file.delete()
+                }
+            }
+
+        }
+        Copy processResourcesTask = project.tasks.getByName('processResources')
+        processResourcesTask.outputs.dir(generatedResources)
+        processResourcesTask.doLast { Copy it ->
+            new File(generatedResources).mkdirs()
+            project.copy {
+                from project.sourceSets.main.output.resourcesDir
+                into generatedResources
+                include '**/*.properties'
+                includeEmptyDirs false
+            }
+            project.fileTree(dir: project.sourceSets.main.output.resourcesDir).include('**/*.properties').visit {
+                if (!it.isDirectory()) {
+                    it.file.delete()
+                }
+            }
+
+        }
     }
 }
