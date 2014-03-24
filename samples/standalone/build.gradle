@@ -27,13 +27,6 @@ nbm {
   moduleName = 'com.foo.acme'
 }
 
-compileJava {
-  doFirst {
-    project.file("$project.buildDir/src/main/generated-sources").mkdirs()
-  }
-  options.compilerArgs = ['-s', "$project.buildDir/src/main/generated-sources"]
-}
-
 dependencies {
     compile 'org.netbeans.api:org-openide-awt:RELEASE74'
     compile 'org.netbeans.api:org-openide-util:RELEASE74'
