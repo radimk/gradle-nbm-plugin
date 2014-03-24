@@ -5,7 +5,6 @@ A Gradle plugin to build NetBeans modules and RCP applications.
 
 # TODOs
 
-* fix merging of properties files (custom resource + generated from anotations)
 * implement adding JAR to modules/ext
 * solve AUC generation
 * testing
