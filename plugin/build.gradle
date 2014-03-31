@@ -75,7 +75,16 @@ task integTest(type: Test, dependsOn: test) {
     reports.html.destination = file("${project.reporting.baseDir}/$name")
 }
 
-check.dependsOn integTest
+task testJenkins(dependsOn: test) {
+    description '=== Update the timestamp of the test results also if UP-TO-DATE ==='
+    inputs.files test.outputs.files
+    doLast{
+        def timestamp = System.currentTimeMillis()
+        testResultsDir.eachFile { it.lastModified = timestamp }
+    }
+}
+check.dependsOn testJenkins, integTest
+
 
 publishing {
     publications {
