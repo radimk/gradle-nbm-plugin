@@ -91,7 +91,7 @@ publishing {
         mavenJava(MavenPublication) {
             groupId 'cz.kubacki.gradle.plugins'
             artifactId 'gradle-nbm-plugin'
-            version project.hasProperty('BUILD_VERSION') ? project.BUILD_VERSION : '1.0-SNAPSHOT'
+            version baseVersion + (project.hasProperty('BUILD_VERSION') ? '.' + project.BUILD_VERSION : '-SNAPSHOT')
 
             from components.java
             artifact sourcesJar {
