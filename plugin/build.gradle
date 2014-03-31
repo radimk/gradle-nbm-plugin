@@ -1,14 +1,40 @@
+buildscript {
+    repositories {
+        jcenter()
+    }
+    dependencies {
+        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:0.3'
+    }
+}
+
 apply plugin: 'groovy'
 apply plugin: 'java'
-apply plugin: 'maven'
+// apply plugin: 'maven'
 apply plugin: 'idea'
+apply plugin: 'maven-publish'
+apply plugin: 'bintray'
 
 def compatibilityVersion = 1.7
 sourceCompatibility = compatibilityVersion
 targetCompatibility = compatibilityVersion
 
-group='cz.kubacki.gradle.plugins'
-version='1.0-SNAPSHOT'
+[compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
+
+// custom tasks for creating source/javadoc jars
+task sourcesJar(type: Jar, dependsOn: classes) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+}
+
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    classifier = 'javadoc'
+    from javadoc.destinationDir
+}
+
+// add javadoc/source jar tasks as artifacts
+artifacts {
+    archives sourcesJar, javadocJar
+}
 
 dependencies {
   compile gradleApi()
@@ -51,13 +77,41 @@ task integTest(type: Test, dependsOn: test) {
 
 check.dependsOn integTest
 
-uploadArchives {
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            groupId 'cz.kubacki.gradle.plugins'
+            artifactId 'gradle-nbm-plugin'
+            version project.hasProperty('BUILD_VERSION') ? project.BUILD_VERSION : '1.0-SNAPSHOT'
+
+            from components.java
+            artifact sourcesJar {
+                classifier "sources"
+            }
+            artifact javadocJar {
+                classifier "javadoc"
+            }
+        }
+    }
     repositories {
-        mavenDeployer {
-            repository(url: uri("$buildDir/repo"))
+        maven {
+            url uri("$buildDir/repo")
         }
     }
 }
+
+bintray {
+    user = bintrayUser
+    key = bintrayKey
+    publications = ['mavenJava']
+    pkg {
+        repo = 'maven'
+        // userOrg = 'nbandroid'
+        name = 'gradle-nbm-plugin'
+        licenses = ['Apache-2.0']
+    }
+}
+
 idea.module {
     testSourceDirs += file('src/integTest/groovy')
 }
