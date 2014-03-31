@@ -10,6 +10,7 @@ import java.util.jar.JarFile
 import java.util.zip.ZipFile
 
 import static org.hamcrest.MatcherAssert.*
+import static org.hamcrest.Matchers.*
 
 class StandaloneNbmProjectTest extends AbstractIntegrationTest {
     def "load project"() {
@@ -131,8 +132,6 @@ MyKey=value
         def moduleJar = new File(getIntegTestDir(), 'build/module/modules/com-foo-acme.jar')
 
         then:
-        // TODO module dependency in manifest
-        // TODO class is compiled
         project != null
         project.tasks.find { it.name == 'nbm'} != null
         assertThat(new File(getIntegTestDir(), 'build/classes/main/META-INF/services/com.mycompany.standalone.Service'), FileMatchers.exists())
@@ -146,10 +145,56 @@ MyKey=value
         moduleProperties(moduleJar, 'com/mycompany/standalone/Bundle.properties').getProperty('CTL_HelloAction') == 'Say hello'
     }
 
+    def "build with extra JAR"() {
+        buildFile << """
+apply plugin: 'java'
+apply plugin: org.gradle.plugins.nbm.NbmPlugin
+
+nbm {
+  moduleName = 'com.foo.acme'
+}
+dependencies {
+  compile 'org.netbeans.api:org-openide-util:RELEASE74'
+  compile 'org.slf4j:slf4j-api:1.7.2'
+}
+"""
+        def srcDir = createNewDir(integTestDir, 'src/main/java/com/mycompany/standalone')
+        createNewFile(srcDir, 'Service.java') << """
+package com.mycompany.standalone;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+public class Service {
+  public Service () {
+    Logger logger = LoggerFactory.getLogger(Service.class);
+  }
+}
+"""
+
+        when:
+        GradleProject project = runTasks(integTestDir, "netbeans")
+        def moduleJar = new File(getIntegTestDir(), 'build/module/modules/com-foo-acme.jar')
+
+        then:
+        project != null
+        project.tasks.find { it.name == 'nbm'} != null
+        assertThat(moduleJar, FileMatchers.exists())
+        assertThat(new File(getIntegTestDir(), 'build/module/modules/ext/slf4j-api-1.7.2.jar'), FileMatchers.exists())
+        assertThat(new File(getIntegTestDir(), 'build/module/modules/ext/org-openide-util-lookup-RELEASE74.jar'), not(FileMatchers.exists()))
+
+        Iterables.contains(moduleClasspath(moduleJar), 'ext/slf4j-api-1.7.2.jar')
+    }
+
     private Iterable<String> moduleDependencies(File jarFile) {
         JarFile jar = new JarFile(jarFile)
         def attrs = jar.manifest.mainAttributes
         def attrValue = attrs.getValue(new Attributes.Name('OpenIDE-Module-Module-Dependencies'))
+        Splitter.on(',').trimResults().split(attrValue != null ? attrValue : '')
+    }
+
+    private Iterable<String> moduleClasspath(File jarFile) {
+        JarFile jar = new JarFile(jarFile)
+        def attrs = jar.manifest.mainAttributes
+        def attrValue = attrs.getValue(new Attributes.Name('Class-Path'))
         Splitter.on(',').trimResults().split(attrValue != null ? attrValue : '')
     }
 

@@ -1,32 +1,31 @@
 package org.gradle.plugins.nbm
 
+import org.gradle.api.Action
 import org.gradle.api.GradleException;
 import org.gradle.api.Project
 import org.gradle.api.Plugin
+import org.gradle.api.artifacts.Configuration
+import org.gradle.api.artifacts.ConfigurationContainer
 import org.gradle.api.file.CopySpec
+import org.gradle.api.file.FileCollection
+import org.gradle.api.plugins.BasePlugin
 import org.gradle.api.plugins.JavaPlugin
+import org.gradle.api.plugins.JavaPluginConvention
 import org.gradle.api.tasks.Copy
+import org.gradle.api.tasks.SourceSet
 import org.gradle.api.tasks.compile.JavaCompile
 
+import java.util.concurrent.Callable
+
 public class NbmPlugin implements Plugin<Project> {
+    public static final String PROVIDED_COMPILE_CONFIGURATION_NAME = "providedCompile";
+    public static final String PROVIDED_RUNTIME_CONFIGURATION_NAME = "providedRuntime";
+
     private static final String NBM_TASK = 'nbm'
     private static final String NETBEANS_TASK = 'netbeans'
     private static final String MANIFEST_TASK = 'generateModuleManifest'
 
     void apply(Project project) {
-        project.tasks.add(NBM_TASK) << {
-            throw new IllegalStateException(
-                    "nbm is only valid when JavaPlugin is aplied; please update your build")
-        }
-        project.tasks.add(MANIFEST_TASK) << {
-            throw new IllegalStateException(
-                    "nbm is only valid when JavaPlugin is aplied; please update your build")
-        }
-        project.tasks.add(NETBEANS_TASK) << {
-            throw new IllegalStateException(
-                    "nbm is only valid when JavaPlugin is aplied; please update your build")
-        }
-
         project.logger.info "Registering deferred NBM plugin configuration..."
         project.plugins.withType(JavaPlugin) { configure(project) }
 
@@ -41,28 +40,58 @@ public class NbmPlugin implements Plugin<Project> {
         project.tasks.withType(NetBeansTask.class).all { NetBeansTask task ->
             task.conventionMapping.moduleBuildDir = { convention.moduleBuildDir }
         }
-    }
+        project.getTasks().withType(NetBeansTask.class, new Action<NetBeansTask>() {
+            public void execute(NetBeansTask task) {
+                task.dependsOn(new Callable() {
+                    public Object call() throws Exception {
+                        return project.getConvention().getPlugin(JavaPluginConvention.class).getSourceSets().getByName(
+                                SourceSet.MAIN_SOURCE_SET_NAME).getRuntimeClasspath();
+                    }
+                });
+                task.classpath({
+                        FileCollection runtimeClasspath = project.getConvention().getPlugin(JavaPluginConvention.class)
+                                .getSourceSets().getByName(SourceSet.MAIN_SOURCE_SET_NAME).getRuntimeClasspath();
+                        Configuration providedRuntime = project.getConfigurations().getByName(
+                                PROVIDED_RUNTIME_CONFIGURATION_NAME);
+                        return runtimeClasspath.minus(providedRuntime);
+                    });
+            }
+        });
 
-    private configure(Project project) {
-        project.logger.info "Configuring NBM plugin..."
-
-        project.extensions.nbm = new NbmPluginExtension(project)
-
-        ModuleManifestTask manifestTask = project.tasks.replace(MANIFEST_TASK, ModuleManifestTask)
+        ModuleManifestTask manifestTask = project.tasks.create(MANIFEST_TASK, ModuleManifestTask)
         def userManifest = project.file('src' + File.separator + 'main' + File.separator + 'nbm' + File.separator + 'manifest.mf')
         if (userManifest.exists()) {
             project.tasks.jar.manifest.from { userManifest }
         }
         project.tasks.jar.manifest.from { manifestTask.getGeneratedManifestFile() }
         project.tasks.jar.dependsOn(manifestTask)
-        
-        // configure NBM task
-        NetBeansTask netbeansTask = project.tasks.replace(NETBEANS_TASK, NetBeansTask)
-        netbeansTask.dependsOn(project.tasks.jar)
-        
-        NbmTask nbmTask = project.tasks.replace(NBM_TASK, NbmTask)
-        nbmTask.dependsOn(netbeansTask)
 
+        NetBeansTask netbeansTask = project.tasks.create(NETBEANS_TASK, NetBeansTask)
+        netbeansTask.dependsOn(project.tasks.jar)
+        netbeansTask.setDescription("Generates a NetBeans module directory.");
+        netbeansTask.setGroup(BasePlugin.BUILD_GROUP);
+        // configure NBM task
+        NbmTask nbmTask = project.tasks.create(NBM_TASK, NbmTask)
+        nbmTask.dependsOn(netbeansTask)
+        nbmTask.setGroup(BasePlugin.BUILD_GROUP)
+
+        configureConfigurations(project.configurations)
+    }
+
+    public void configureConfigurations(ConfigurationContainer configurationContainer) {
+        Configuration provideCompileConfiguration = configurationContainer.create(PROVIDED_COMPILE_CONFIGURATION_NAME).setVisible(false).
+                setDescription("Additional compile classpath for libraries that should not be part of the NBM archive.");
+        Configuration provideRuntimeConfiguration = configurationContainer.create(PROVIDED_RUNTIME_CONFIGURATION_NAME).setVisible(false).
+                extendsFrom(provideCompileConfiguration).
+                setDescription("Additional runtime classpath for libraries that should not be part of the NBM archive.");
+        configurationContainer.getByName(JavaPlugin.COMPILE_CONFIGURATION_NAME).extendsFrom(provideCompileConfiguration);
+        configurationContainer.getByName(JavaPlugin.RUNTIME_CONFIGURATION_NAME).extendsFrom(provideRuntimeConfiguration);
+    }
+
+    private configure(Project project) {
+        project.logger.info "Configuring NBM plugin..."
+
+        project.extensions.nbm = new NbmPluginExtension(project)
         setupPropertiesMerging(project)
     }
 

@@ -5,7 +5,6 @@ A Gradle plugin to build NetBeans modules and RCP applications.
 
 # TODOs
 
-* implement adding JAR to modules/ext
 * solve AUC generation
 * testing
 * module dependencies: implementation deps, use new configuration(s) to allow changes

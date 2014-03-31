@@ -4,6 +4,8 @@ import org.apache.tools.ant.taskdefs.Taskdef
 import org.apache.tools.ant.types.Path
 import org.gradle.api.DefaultTask
 import org.gradle.api.artifacts.ResolvedDependency
+import org.gradle.api.file.FileCollection
+import org.gradle.api.file.FileVisitDetails
 import org.gradle.api.internal.ConventionTask
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.OutputDirectory
@@ -58,8 +60,30 @@ class ModuleManifestTask extends ConventionTask {
                     new Attributes.Name('OpenIDE-Module-Module-Dependencies'),
                     moduleDeps.entrySet().collect { it.key + ' > ' + it.value }.join(', '))
         }
+        def classpath = computeClasspath()
+        if (classpath != null && !classpath.isEmpty()) {
+            manifest.getMainAttributes().put(new Attributes.Name('Class-Path'), classpath)
+        }
         def os = new FileOutputStream(manifestFile)
         manifest.write(os)
         os.close()
+    }
+
+    private String computeClasspath() {
+        FileCollection classpath = project.tasks.findByPath('netbeans').classpath
+        def jarNames = []
+        classpath.asFileTree.visit { FileVisitDetails fvd ->
+            if (fvd.directory) return
+            if (!fvd.name.endsWith('jar')) return
+
+            JarFile jar = new JarFile(fvd.file)
+            def attrs = jar.manifest.mainAttributes
+            def attrValue = attrs.getValue(new Attributes.Name('OpenIDE-Module'))
+            if (attrValue != null) return
+
+            // JAR but not NetBeans module
+            jarNames += 'ext/' + fvd.name
+        }
+        jarNames.join(', ')
     }
 }
