@@ -84,6 +84,6 @@ class ModuleManifestTask extends ConventionTask {
             // JAR but not NetBeans module
             jarNames += 'ext/' + fvd.name
         }
-        jarNames.join(', ')
+        jarNames.join(' ')
     }
 }

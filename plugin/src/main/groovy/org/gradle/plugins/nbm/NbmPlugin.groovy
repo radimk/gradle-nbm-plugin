@@ -74,6 +74,7 @@ public class NbmPlugin implements Plugin<Project> {
         NbmTask nbmTask = project.tasks.create(NBM_TASK, NbmTask)
         nbmTask.dependsOn(netbeansTask)
         nbmTask.setGroup(BasePlugin.BUILD_GROUP)
+        project.tasks.build.dependsOn(nbmTask)
 
         configureConfigurations(project.configurations)
     }

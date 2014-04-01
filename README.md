@@ -5,6 +5,8 @@ A Gradle plugin to build NetBeans modules and RCP applications.
 
 # TODOs
 
+* fix resource lookup when running annotation processors
+* possibly generate files from annotations into special directory to simplify merges
 * solve AUC generation
 * testing
 * module dependencies: implementation deps, use new configuration(s) to allow changes
