@@ -12,6 +12,9 @@ class NbmPluginExtension {
     String specificationVersion
     boolean eager
     boolean autoload
+    File keystore
+    String nbm_alias
+    String storepass
 
     private Configuration harnessConfiguration
 

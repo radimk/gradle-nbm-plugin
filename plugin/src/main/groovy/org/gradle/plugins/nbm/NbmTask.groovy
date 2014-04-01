@@ -46,6 +46,13 @@ class NbmTask extends ConventionTask {
         makenbm.productDir = project.tasks.netbeans.getModuleBuildDir()
         makenbm.file = nbmFile
         makenbm.module = "modules" + File.separator + moduleJarName + ".jar"
+
+        if (netbeansExt().keystore) {
+            def signature = makenbm.createSignature()
+            signature.keystore = netbeansExt().keystore
+            signature.alias = netbeansExt().nbm_alias
+            signature.storepass = netbeansExt().nbm_alias
+        }
         makenbm.execute()
     }
 
