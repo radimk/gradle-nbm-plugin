@@ -56,7 +56,7 @@ repositories {
         url 'http://repo.gradle.org/gradle/libs-releases-local'
     }
 }
- 
+
 sourceSets {
     integTest {
         groovy.srcDir file('src/integTest/groovy')
