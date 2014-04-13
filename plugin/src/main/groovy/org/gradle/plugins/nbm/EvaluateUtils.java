@@ -8,6 +8,14 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 public final class EvaluateUtils {
+    public static String asString(Object obj) {
+        if (obj instanceof Closure) {
+            return asString(((Closure<?>)obj).call());
+        }
+
+        return obj != null ? obj.toString() : null;
+    }
+
     public static Path asPath(Object obj) {
         if (obj instanceof Path || obj == null) {
             return (Path)obj;
