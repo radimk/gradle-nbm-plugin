@@ -28,6 +28,7 @@ class ModuleManifestTask extends ConventionTask {
     private String getBuildDate() {
         Date now = new Date(System.currentTimeMillis())
         def format = new SimpleDateFormat("yyyyMMddHHmm")
+        return format.format(now)
     }
 
     @TaskAction
