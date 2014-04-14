@@ -78,6 +78,11 @@ class ModuleManifestTask extends ConventionTask {
             mainAttributes.put(new Attributes.Name('OpenIDE-Module-Requires'), requires.join(', '))
         }
 
+        def localizingBundle = netBeansExt().localizingBundle
+        if (localizingBundle) {
+            mainAttributes.put(new Attributes.Name('OpenIDE-Module-Localizing-Bundle'), localizingBundle)
+        }
+
         mainAttributes.put(new Attributes.Name('OpenIDE-Module'), netbeansExt().moduleName)
 
         mainAttributes.put(new Attributes.Name('OpenIDE-Module-Implementation-Version'), netbeansExt().implementationVersion)
