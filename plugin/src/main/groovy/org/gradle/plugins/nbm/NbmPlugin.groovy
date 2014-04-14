@@ -97,9 +97,19 @@ public class NbmPlugin implements Plugin<Project> {
                     confFile.toFile().write "netbeans_extraclusters=\"${buildPath.resolve('module')}\""
                 }
 
-                // TODO: What to do when debug is true?
                 workingDir project.buildDir
-                commandLine project.netBeansExecutable, '--userdir', testUserDir
+
+                List args = new LinkedList()
+                args.addAll([ project.netBeansExecutable, '--userdir', testUserDir])
+
+                if (debug) {
+                    def nbmDebugPort = '5006'
+                    if (project.hasProperty(nbmDebugPort)) {
+                        nbmDebugPort = project.nbmDebugPort.trim()
+                    }
+                    args.add("-J-agentlib:jdwp=transport=dt_socket,server=y,address=${nbmDebugPort}")
+                }
+                commandLine args
             }
             else {
                 doFirst {
