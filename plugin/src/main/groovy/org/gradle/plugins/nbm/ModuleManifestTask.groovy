@@ -11,9 +11,11 @@ import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
+import java.util.Date
 import java.util.jar.Attributes
 import java.util.jar.JarFile
 import java.util.jar.Manifest
+import java.text.SimpleDateFormat
 
 class ModuleManifestTask extends ConventionTask {
     @OutputFile
@@ -21,6 +23,11 @@ class ModuleManifestTask extends ConventionTask {
 
     private NbmPluginExtension netbeansExt() {
         project.extensions.nbm
+    }
+
+    private String getBuildDate() {
+        Date now = new Date(System.currentTimeMillis())
+        def format = new SimpleDateFormat("yyyyMMddHHmm")
     }
 
     @TaskAction
@@ -51,24 +58,31 @@ class ModuleManifestTask extends ConventionTask {
         def manifest = new Manifest()
         def mainAttributes = manifest.getMainAttributes()
         mainAttributes.put(Attributes.Name.MANIFEST_VERSION, '1.0')
-        mainAttributes.put(new Attributes.Name('OpenIDE-Module'), netbeansExt().moduleName)
-        if (netbeansExt().specificationVersion) {
-            mainAttributes.put(new Attributes.Name('OpenIDE-Module-Specification-Version'), netbeansExt().specificationVersion)
-        }
-        if (!moduleDeps.isEmpty()) {
-            mainAttributes.put(
-                    new Attributes.Name('OpenIDE-Module-Module-Dependencies'),
-                    moduleDeps.entrySet().collect { it.key + ' > ' + it.value }.join(', '))
-        }
+
         def classpath = computeClasspath()
         if (classpath != null && !classpath.isEmpty()) {
             mainAttributes.put(new Attributes.Name('Class-Path'), classpath)
         }
 
+        if (!moduleDeps.isEmpty()) {
+            mainAttributes.put(
+                    new Attributes.Name('OpenIDE-Module-Module-Dependencies'),
+                    moduleDeps.entrySet().collect { it.key + ' > ' + it.value }.join(', '))
+        }
+
+        mainAttributes.put(new Attributes.Name('Created-By'), 'Gradle NBM plugin')
+        mainAttributes.put(new Attributes.Name('OpenIDE-Module-Build-Version'), getBuildDate())
+
         def requires = netbeansExt().requires;
         if (!requires.isEmpty()) {
             mainAttributes.put(new Attributes.Name('OpenIDE-Module-Requires'), requires.join(', '))
         }
+
+        mainAttributes.put(new Attributes.Name('OpenIDE-Module'), netbeansExt().moduleName)
+
+        mainAttributes.put(new Attributes.Name('OpenIDE-Module-Implementation-Version'), netbeansExt().implementationVersion)
+        mainAttributes.put(new Attributes.Name('OpenIDE-Module-Specification-Version'), netbeansExt().specificationVersion)
+
         def os = new FileOutputStream(manifestFile)
         manifest.write(os)
         os.close()
