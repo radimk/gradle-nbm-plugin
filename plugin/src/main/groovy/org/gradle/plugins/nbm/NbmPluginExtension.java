@@ -17,6 +17,7 @@ public final class NbmPluginExtension {
     private final Project project;
     private final List<String> requires;
     private String localizingBundle;
+    private String moduleInstall;
 
     private final Configuration harnessConfiguration;
 
@@ -30,6 +31,7 @@ public final class NbmPluginExtension {
         this.specificationVersion = null;
         this.implementationVersion = null;
         this.localizingBundle = null;
+        this.moduleInstall = null;
         this.eager = false;
         this.autoload = false;
         this.keyStore = new NbmKeyStoreDef();
@@ -39,6 +41,14 @@ public final class NbmPluginExtension {
 
     public Configuration getHarnessConfiguration() {
         return harnessConfiguration;
+    }
+
+    public String getModuleInstall() {
+        return moduleInstall;
+    }
+
+    public void setModuleInstall(String moduleInstall) {
+        this.moduleInstall = moduleInstall;
     }
 
     public String getLocalizingBundle() {
