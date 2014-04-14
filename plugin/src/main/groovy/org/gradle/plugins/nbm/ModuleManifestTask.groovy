@@ -78,7 +78,7 @@ class ModuleManifestTask extends ConventionTask {
             mainAttributes.put(new Attributes.Name('OpenIDE-Module-Requires'), requires.join(', '))
         }
 
-        def localizingBundle = netBeansExt().localizingBundle
+        def localizingBundle = netbeansExt().localizingBundle
         if (localizingBundle) {
             mainAttributes.put(new Attributes.Name('OpenIDE-Module-Localizing-Bundle'), localizingBundle)
         }
@@ -88,11 +88,17 @@ class ModuleManifestTask extends ConventionTask {
         mainAttributes.put(new Attributes.Name('OpenIDE-Module-Implementation-Version'), netbeansExt().implementationVersion)
         mainAttributes.put(new Attributes.Name('OpenIDE-Module-Specification-Version'), netbeansExt().specificationVersion)
 
-        def moduleInstall = netBeansExt().moduleInstall
+        def packageList = netbeansExt().friendPackages.packageList.toArray()
+        if (packageList.length >= 0) {
+            Arrays.sort(packageList) // because why not
+            mainAttributes.put(new Attributes.Name('OpenIDE-Module-Public-Packages'), packageList.join(', '))
+            packageList.join(', ')
+        }
+
+        def moduleInstall = netbeansExt().moduleInstall
         if (moduleInstall) {
             mainAttributes.put(new Attributes.Name('OpenIDE-Module-Install'), moduleInstall.replace('.', '/') + '.class')
         }
-
 
         def os = new FileOutputStream(manifestFile)
         manifest.write(os)
