@@ -90,7 +90,7 @@ class ModuleManifestTask extends ConventionTask {
 
         def moduleInstall = netBeansExt().moduleInstall
         if (moduleInstall) {
-            mainAttributes.put(new Attributes.Name('OpenIDE-Module-Install'), moduleInstall)
+            mainAttributes.put(new Attributes.Name('OpenIDE-Module-Install'), moduleInstall.replace('.', '/') + '.class')
         }
 
 
