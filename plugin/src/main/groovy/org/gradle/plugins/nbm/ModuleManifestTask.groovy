@@ -89,11 +89,12 @@ class ModuleManifestTask extends ConventionTask {
         mainAttributes.put(new Attributes.Name('OpenIDE-Module-Implementation-Version'), netbeansExt().implementationVersion)
         mainAttributes.put(new Attributes.Name('OpenIDE-Module-Specification-Version'), netbeansExt().specificationVersion)
 
-        def packageList = netbeansExt().friendPackages.packageList.toArray()
-        if (packageList.length >= 0) {
-            Arrays.sort(packageList) // because why not
-            mainAttributes.put(new Attributes.Name('OpenIDE-Module-Public-Packages'), packageList.join(', '))
-            packageList.join(', ')
+        def packageList = netbeansExt().friendPackages.packageList
+        if (!packageList.isEmpty()) {
+            Set packageListSet = new HashSet(packageList)
+            def packages = packageListSet.toArray()
+            Arrays.sort(packages) // because why not
+            mainAttributes.put(new Attributes.Name('OpenIDE-Module-Public-Packages'), packages.join(', '))
         }
 
         def moduleInstall = netbeansExt().moduleInstall
