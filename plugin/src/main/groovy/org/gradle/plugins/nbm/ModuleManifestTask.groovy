@@ -88,6 +88,12 @@ class ModuleManifestTask extends ConventionTask {
         mainAttributes.put(new Attributes.Name('OpenIDE-Module-Implementation-Version'), netbeansExt().implementationVersion)
         mainAttributes.put(new Attributes.Name('OpenIDE-Module-Specification-Version'), netbeansExt().specificationVersion)
 
+        def moduleInstall = netBeansExt().moduleInstall
+        if (moduleInstall) {
+            mainAttributes.put(new Attributes.Name('OpenIDE-Module-Install'), moduleInstall)
+        }
+
+
         def os = new FileOutputStream(manifestFile)
         manifest.write(os)
         os.close()
