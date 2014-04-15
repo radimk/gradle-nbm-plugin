@@ -11,6 +11,7 @@ import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
+import java.nio.file.Files
 import java.util.Date
 import java.util.jar.Attributes
 import java.util.jar.JarFile
@@ -21,8 +22,38 @@ class ModuleManifestTask extends ConventionTask {
     @OutputFile
     File generatedManifestFile
 
+    public ModuleManifestTask() {
+        outputs.upToDateWhen { checkUpToDate() }
+    }
+
     private NbmPluginExtension netbeansExt() {
         project.extensions.nbm
+    }
+
+    public boolean checkUpToDate() {
+        byte[] actualBytes = tryGetCurrentGeneratedContent()
+        if (actualBytes == null) {
+            return false
+        }
+
+        def output = new ByteArrayOutputStream(4096)
+        getManifest().write(output)
+
+        byte[] expectedBytes = output.toByteArray()
+        return Arrays.equals(actualBytes, expectedBytes)
+    }
+
+    private byte[] tryGetCurrentGeneratedContent() {
+        def manifestFile = getGeneratedManifestFile().toPath()
+        if (!Files.isRegularFile(manifestFile)) {
+            return null
+        }
+
+        try {
+            return Files.readAllBytes(manifestFile)
+        } catch (IOException ex) {
+            return null;
+        }
     }
 
     private String getBuildDate() {
@@ -111,23 +142,30 @@ class ModuleManifestTask extends ConventionTask {
         return result
     }
 
-    @TaskAction
-    void generate() {
-        def manifestFile = getGeneratedManifestFile()
-        project.logger.info "Generating NetBeans module manifest $manifestFile"
-
+    private Manifest getManifest() {
         // TODO: It would be nice to output manifest entries in the order they
         //   were specified.
+
         def manifest = new Manifest()
         def mainAttributes = manifest.getMainAttributes()
 
         getManifestEntries().each { key, value ->
             mainAttributes.put(new Attributes.Name(key), value)
         }
+        return manifest
+    }
+
+    @TaskAction
+    void generate() {
+        def manifestFile = getGeneratedManifestFile()
+        project.logger.info "Generating NetBeans module manifest $manifestFile"
 
         def os = new FileOutputStream(manifestFile)
-        manifest.write(os)
-        os.close()
+        try {
+            getManifest().write(os)
+        } finally {
+            os.close()
+        }
     }
 
     private String computeClasspath() {
