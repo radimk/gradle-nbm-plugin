@@ -31,10 +31,8 @@ class ModuleManifestTask extends ConventionTask {
         return format.format(now)
     }
 
-    @TaskAction
-    void generate() {
-        def manifestFile = getGeneratedManifestFile()
-        project.logger.info "Generating NetBeans module manifest $generatedManifestFile"
+    private Map<String, String> getManifestEntries() {
+        Map<String, String> result = new HashMap<String, String>()
 
         Map<String, String> moduleDeps = new HashMap<>()
         def mainSourceSet = project.sourceSets.main
@@ -56,55 +54,70 @@ class ModuleManifestTask extends ConventionTask {
             }
         }
 
-        def manifest = new Manifest()
-        def mainAttributes = manifest.getMainAttributes()
-        mainAttributes.put(Attributes.Name.MANIFEST_VERSION, '1.0')
+        result.put('Manifest-Version', '1.0')
 
         def classpath = computeClasspath()
         if (classpath != null && !classpath.isEmpty()) {
-            mainAttributes.put(new Attributes.Name('Class-Path'), classpath)
+            result.put('Class-Path', classpath)
         }
 
         if (!moduleDeps.isEmpty()) {
-            mainAttributes.put(
-                    new Attributes.Name('OpenIDE-Module-Module-Dependencies'),
+            result.put(
+                    'OpenIDE-Module-Module-Dependencies',
                     moduleDeps.entrySet().collect { it.key + ' > ' + it.value }.join(', '))
         }
 
-        mainAttributes.put(new Attributes.Name('Created-By'), 'Gradle NBM plugin')
-        mainAttributes.put(new Attributes.Name('OpenIDE-Module-Build-Version'), getBuildDate())
+        result.put('Created-By', 'Gradle NBM plugin')
+        result.put('OpenIDE-Module-Build-Version', getBuildDate())
 
         def requires = netbeansExt().requires;
         if (!requires.isEmpty()) {
-            mainAttributes.put(new Attributes.Name('OpenIDE-Module-Requires'), requires.join(', '))
+            result.put('OpenIDE-Module-Requires', requires.join(', '))
         }
 
         def localizingBundle = netbeansExt().localizingBundle
         if (localizingBundle) {
-            mainAttributes.put(new Attributes.Name('OpenIDE-Module-Localizing-Bundle'), localizingBundle)
+            result.put('OpenIDE-Module-Localizing-Bundle', localizingBundle)
         }
 
         String javacVersion = CompilerUtils.tryGetCompilerVersion(project.compileJava)
         if (javacVersion) {
-            mainAttributes.put(new Attributes.Name('Build-Jdk'), javacVersion)
+            result.put('Build-Jdk', javacVersion)
         }
 
-        mainAttributes.put(new Attributes.Name('OpenIDE-Module'), netbeansExt().moduleName)
+        result.put('OpenIDE-Module', netbeansExt().moduleName)
 
-        mainAttributes.put(new Attributes.Name('OpenIDE-Module-Implementation-Version'), netbeansExt().implementationVersion)
-        mainAttributes.put(new Attributes.Name('OpenIDE-Module-Specification-Version'), netbeansExt().specificationVersion)
+        result.put('OpenIDE-Module-Implementation-Version', netbeansExt().implementationVersion)
+        result.put('OpenIDE-Module-Specification-Version', netbeansExt().specificationVersion)
 
         def packageList = netbeansExt().friendPackages.packageList
         if (!packageList.isEmpty()) {
             Set packageListSet = new HashSet(packageList)
             def packages = packageListSet.toArray()
             Arrays.sort(packages) // because why not
-            mainAttributes.put(new Attributes.Name('OpenIDE-Module-Public-Packages'), packages.join(', '))
+            result.put('OpenIDE-Module-Public-Packages', packages.join(', '))
         }
 
         def moduleInstall = netbeansExt().moduleInstall
         if (moduleInstall) {
-            mainAttributes.put(new Attributes.Name('OpenIDE-Module-Install'), moduleInstall.replace('.', '/') + '.class')
+            result.put('OpenIDE-Module-Install', moduleInstall.replace('.', '/') + '.class')
+        }
+
+        return result
+    }
+
+    @TaskAction
+    void generate() {
+        def manifestFile = getGeneratedManifestFile()
+        project.logger.info "Generating NetBeans module manifest $manifestFile"
+
+        // TODO: It would be nice to output manifest entries in the order they
+        //   were specified.
+        def manifest = new Manifest()
+        def mainAttributes = manifest.getMainAttributes()
+
+        getManifestEntries().each { key, value ->
+            mainAttributes.put(new Attributes.Name(key), value)
         }
 
         def os = new FileOutputStream(manifestFile)
