@@ -13,4 +13,8 @@ public final class NbmManifest {
     public void put(String key, String value) {
         entries.put(key, value);
     }
+
+    public Map<String, String> getAllEntries() {
+        return new HashMap<>(entries);
+    }
 }
