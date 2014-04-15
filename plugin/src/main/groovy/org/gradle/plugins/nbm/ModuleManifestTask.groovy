@@ -84,6 +84,11 @@ class ModuleManifestTask extends ConventionTask {
             mainAttributes.put(new Attributes.Name('OpenIDE-Module-Localizing-Bundle'), localizingBundle)
         }
 
+        String javacVersion = CompilerUtils.tryGetCompilerVersion(project.compileJava)
+        if (javacVersion) {
+            mainAttributes.put(new Attributes.Name('Build-Jdk'), javacVersion)
+        }
+
         mainAttributes.put(new Attributes.Name('OpenIDE-Module'), netbeansExt().moduleName)
 
         mainAttributes.put(new Attributes.Name('OpenIDE-Module-Implementation-Version'), netbeansExt().implementationVersion)
