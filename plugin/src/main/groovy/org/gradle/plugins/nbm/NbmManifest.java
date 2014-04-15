@@ -1,7 +1,7 @@
 package org.gradle.plugins.nbm;
 
 import java.util.Collections;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 public final class NbmManifest {
@@ -9,7 +9,7 @@ public final class NbmManifest {
     private final Map<String, Object> entriesView;
 
     public NbmManifest() {
-        this.entries = new HashMap<>();
+        this.entries = new LinkedHashMap<>();
         this.entriesView = Collections.unmodifiableMap(entries);
     }
 
