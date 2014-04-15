@@ -103,6 +103,11 @@ class ModuleManifestTask extends ConventionTask {
             result.put('OpenIDE-Module-Install', moduleInstall.replace('.', '/') + '.class')
         }
 
+        def customEntries = netbeansExt().manifest.getAllEntries()
+        customEntries.each { key, value ->
+            result.put(key, EvaluateUtils.asString(value))
+        }
+
         return result
     }
 
