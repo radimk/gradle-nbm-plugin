@@ -22,17 +22,35 @@ class ModuleManifestTask extends ConventionTask {
     @OutputFile
     File generatedManifestFile
 
+    public ModuleManifestTask() {
+        outputs.upToDateWhen { checkUpToDate() }
+    }
+
     private NbmPluginExtension netbeansExt() {
         project.extensions.nbm
     }
 
-    private byte[] tryGetCurrentGeneratedContent(Path manifestPath) {
-        if (!Files.isRegularFile(manifestPath)) {
+    public boolean checkUpToDate() {
+        byte[] actualBytes = tryGetCurrentGeneratedContent()
+        if (actualBytes == null) {
+            return false
+        }
+
+        def output = new ByteArrayOutputStream(4096)
+        getManifest().write(output)
+
+        byte[] expectedBytes = output.toByteArray()
+        return Arrays.equals(actualBytes, expectedBytes)
+    }
+
+    private byte[] tryGetCurrentGeneratedContent() {
+        def manifestFile = getGeneratedManifestFile().toPath()
+        if (!Files.isRegularFile(manifestFile)) {
             return null
         }
 
         try {
-            return Files.readAllBytes(manifestPath)
+            return Files.readAllBytes(manifestFile)
         } catch (IOException ex) {
             return null;
         }
@@ -139,21 +157,14 @@ class ModuleManifestTask extends ConventionTask {
 
     @TaskAction
     void generate() {
-        def manifestPath = getGeneratedManifestFile().toPath()
-        project.logger.info "Generating NetBeans module manifest manifestPath"
+        def manifestFile = getGeneratedManifestFile()
+        project.logger.info "Generating NetBeans module manifest $manifestFile"
 
-        byte[] actualBytes = tryGetCurrentGeneratedContent(manifestPath)
-
-        def output = new ByteArrayOutputStream(4096)
-        getManifest().write(output)
-
-        byte[] outputBytes = output.toByteArray()
-
-        boolean anythingToDo = Arrays.equals(actualBytes, outputBytes)
-        setDidWork(anythingToDo)
-
-        if (anythingToDo) {
-            Files.write(manifestPath, outputBytes)
+        def os = new FileOutputStream(manifestFile)
+        try {
+            getManifest().write(os)
+        } finally {
+            os.close()
         }
     }
 
