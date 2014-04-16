@@ -64,7 +64,7 @@ public class NbmPluginTest {
         assertNotNull(jarTask)
         def manifestTasks = project.getTasks().withType(ModuleManifestTask)
         assertNotNull(manifestTasks)
-        
+
         assertTrue(manifestTasks.iterator().next() in jarTask.dependsOn)
     }
 
@@ -77,5 +77,13 @@ public class NbmPluginTest {
         assertTrue(project.tasks.getByName('compileJava').outputs.files.contains(project.file('build/generated-resources/main')))
         assertTrue(project.tasks.getByName('processResources').outputs.files.contains(project.file('build/generated-resources/resources')))
         assertTrue(project.tasks.getByName('mergeProperties').outputs.files.contains(project.file('build/generated-resources/output')))
+    }
+
+    @Test
+    public void 'default module name is the project name.'() {
+        Project project = ProjectBuilder.builder().withName('my-test-project').build()
+        project.project.plugins.apply(NbmPlugin)
+
+        assertEquals(project.nbm.moduleName, 'my-test-project')
     }
 }
