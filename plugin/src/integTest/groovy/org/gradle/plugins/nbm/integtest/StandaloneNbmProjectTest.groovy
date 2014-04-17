@@ -188,6 +188,7 @@ public class Service {
         JarFile jar = new JarFile(jarFile)
         def attrs = jar.manifest.mainAttributes
         def attrValue = attrs.getValue(new Attributes.Name('OpenIDE-Module-Module-Dependencies'))
+        jar.close()
         Splitter.on(',').trimResults().split(attrValue != null ? attrValue : '')
     }
 
@@ -195,6 +196,7 @@ public class Service {
         JarFile jar = new JarFile(jarFile)
         def attrs = jar.manifest.mainAttributes
         def attrValue = attrs.getValue(new Attributes.Name('Class-Path'))
+        jar.close()
         Splitter.on(',').trimResults().split(attrValue != null ? attrValue : '')
     }
 
@@ -204,6 +206,7 @@ public class Service {
         def props = new Properties()
         props.load(is)
         is.close()
+        jar.close()
         props
     }
 }
