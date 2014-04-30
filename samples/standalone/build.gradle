@@ -8,13 +8,13 @@ buildscript {
     }
     dependencies {
         classpath group: 'cz.kubacki.gradle.plugins',
-                   name: 'nbmPlugin',
-                version: '1.0-SNAPSHOT'
+                   name: 'gradle-nbm-plugin',
+                version: '1.6-SNAPSHOT'
         gradleApi()
     }
 }
-apply plugin: 'nbm'
 apply plugin: 'java'
+apply plugin: 'nbm'
 
 repositories {
     mavenCentral()

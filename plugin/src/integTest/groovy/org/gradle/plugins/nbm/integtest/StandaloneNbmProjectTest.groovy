@@ -2,6 +2,7 @@ package org.gradle.plugins.nbm.integtest
 
 import com.google.common.base.Splitter
 import com.google.common.collect.Iterables
+import com.google.common.io.Files
 import org.gradle.tooling.BuildException
 import org.gradle.tooling.model.GradleProject
 
@@ -61,6 +62,28 @@ nbm {
         assertThat(new File(getIntegTestDir(), 'build/module/config/Modules/com-foo-acme.xml'), FileMatchers.exists())
         assertThat(new File(getIntegTestDir(), 'build/module/modules/com-foo-acme.jar'), FileMatchers.exists())
         assertThat(new File(getIntegTestDir(), 'build/module/update_tracking/com-foo-acme.xml'), FileMatchers.exists())
+        assertThat(new File(getIntegTestDir(), 'build/nbm/com-foo-acme.nbm'), FileMatchers.exists())
+    }
+
+    def "build signed nbm"() {
+        buildFile << """
+apply plugin: 'java'
+apply plugin: org.gradle.plugins.nbm.NbmPlugin
+
+nbm {
+  moduleName = 'com.foo.acme'
+  keystore project.file('keystore')
+  nbm_alias 'myself'
+  storepass 'specialsauce'
+}
+"""
+        when:
+        Files.asByteSink(new File(getIntegTestDir(), 'keystore')).writeFrom(StandaloneNbmProjectTest.getResourceAsStream('keystore'))
+        GradleProject project = runTasks(integTestDir, "nbm")
+
+        then:
+        project != null
+        project.tasks.find { it.name == 'nbm'} != null
         assertThat(new File(getIntegTestDir(), 'build/nbm/com-foo-acme.nbm'), FileMatchers.exists())
     }
 
