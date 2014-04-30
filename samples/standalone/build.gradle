@@ -9,7 +9,7 @@ buildscript {
     dependencies {
         classpath group: 'cz.kubacki.gradle.plugins',
                    name: 'gradle-nbm-plugin',
-                version: '1.6-SNAPSHOT'
+                version: '1.7-SNAPSHOT'
         gradleApi()
     }
 }
