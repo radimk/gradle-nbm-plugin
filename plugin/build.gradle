@@ -66,13 +66,15 @@ sourceSets {
     }
 }
 
-task integTest(type: Test, dependsOn: test) {
+task integTest(type: Test) {
     description = 'Runs the integration tests.'
     group = 'verification'
     testClassesDir = sourceSets.integTest.output.classesDir
     classpath = sourceSets.integTest.runtimeClasspath
     reports.junitXml.destination = file("${project.testResultsDir}/$name")
     reports.html.destination = file("${project.reporting.baseDir}/$name")
+
+    shouldRunAfter test
 }
 
 task testJenkins(dependsOn: test) {
