@@ -23,6 +23,7 @@ repositories {
     }
 }
 
+version = '1.2.3'
 nbm {
     moduleName = 'com.foo.acme'
     // Module signing data
