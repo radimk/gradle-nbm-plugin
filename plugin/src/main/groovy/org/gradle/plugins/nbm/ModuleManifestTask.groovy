@@ -99,7 +99,6 @@ class ModuleManifestTask extends ConventionTask {
         }
 
         result.put('Created-By', 'Gradle NBM plugin')
-        result.put('OpenIDE-Module-Build-Version', getBuildDate())
 
         def requires = netbeansExt().requires;
         if (!requires.isEmpty()) {
@@ -111,14 +110,15 @@ class ModuleManifestTask extends ConventionTask {
             result.put('OpenIDE-Module-Localizing-Bundle', localizingBundle)
         }
 
-        String javacVersion = CompilerUtils.tryGetCompilerVersion(project.compileJava)
-        if (javacVersion) {
-            result.put('Build-Jdk', javacVersion)
-        }
-
         result.put('OpenIDE-Module', netbeansExt().moduleName)
 
-        result.put('OpenIDE-Module-Implementation-Version', netbeansExt().implementationVersion)
+        def implVersion = netbeansExt().implementationVersion
+        if (implVersion) {
+            result.put('OpenIDE-Module-Implementation-Version', implVersion)
+            result.put('OpenIDE-Module-Build-Version', getBuildDate())
+        } else {
+            result.put('OpenIDE-Module-Implementation-Version', '')
+        }
         result.put('OpenIDE-Module-Specification-Version', netbeansExt().specificationVersion)
 
         def packageList = netbeansExt().friendPackages.packageList
@@ -134,11 +134,6 @@ class ModuleManifestTask extends ConventionTask {
             result.put('OpenIDE-Module-Install', moduleInstall.replace('.', '/') + '.class')
         }
 
-        def customEntries = netbeansExt().manifest.getAllEntries()
-        customEntries.each { key, value ->
-            result.put(key, EvaluateUtils.asString(value))
-        }
-
         return result
     }
 
@@ -150,6 +145,7 @@ class ModuleManifestTask extends ConventionTask {
         def mainAttributes = manifest.getMainAttributes()
 
         getManifestEntries().each { key, value ->
+            println 'add manifest entry ' + key + ': ' + value + ' / ' + (value == null)
             mainAttributes.put(new Attributes.Name(key), value)
         }
         return manifest

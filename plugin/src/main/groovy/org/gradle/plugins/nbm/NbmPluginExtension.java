@@ -19,7 +19,6 @@ public final class NbmPluginExtension {
     private String localizingBundle;
     private String moduleInstall;
     private final NbmFriendPackages friendPackages;
-    private final NbmManifest manifest;
 
     private final Configuration harnessConfiguration;
 
@@ -36,7 +35,6 @@ public final class NbmPluginExtension {
         this.moduleInstall = null;
         this.eager = false;
         this.autoload = false;
-        this.manifest = new NbmManifest();
         this.friendPackages = new NbmFriendPackages();
         this.keyStore = new NbmKeyStoreDef();
         this.requires = new LinkedList<>();
@@ -51,16 +49,6 @@ public final class NbmPluginExtension {
         configBlock.setResolveStrategy(Closure.DELEGATE_FIRST);
         configBlock.setDelegate(friendPackages);
         configBlock.call(friendPackages);
-    }
-
-    public NbmManifest getManifest() {
-        return manifest;
-    }
-
-    public void manifest(Closure<NbmManifest> configBlock) {
-        configBlock.setResolveStrategy(Closure.DELEGATE_FIRST);
-        configBlock.setDelegate(manifest);
-        configBlock.call(manifest);
     }
 
     public Configuration getHarnessConfiguration() {
@@ -130,9 +118,6 @@ public final class NbmPluginExtension {
     }
 
     public String getImplementationVersion() {
-        if (implementationVersion == null) {
-            return getSpecificationVersion();
-        }
         return implementationVersion;
     }
 

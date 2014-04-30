@@ -86,4 +86,12 @@ public class NbmPluginTest {
 
         assertEquals(project.nbm.moduleName, 'my-test-project')
     }
+
+    @Test
+    public void 'no implementation version by default'() {
+        Project project = ProjectBuilder.builder().withName('my-test-project').build()
+        project.project.plugins.apply(NbmPlugin)
+
+        assertNull(project.nbm.implementationVersion)
+    }
 }
