@@ -49,20 +49,25 @@ class ModuleManifestTask extends ConventionTask {
         }
 
         def manifest = new Manifest()
-        manifest.getMainAttributes().put(Attributes.Name.MANIFEST_VERSION, '1.0')
-        manifest.getMainAttributes().put(new Attributes.Name('OpenIDE-Module'), netbeansExt().moduleName)
-        manifest.getMainAttributes().put(new Attributes.Name('OpenIDE-Module-Requires'), 'org.openide.modules.ModuleFormat1')
+        def mainAttributes = manifest.getMainAttributes()
+        mainAttributes.put(Attributes.Name.MANIFEST_VERSION, '1.0')
+        mainAttributes.put(new Attributes.Name('OpenIDE-Module'), netbeansExt().moduleName)
         if (netbeansExt().specificationVersion) {
-            manifest.getMainAttributes().put(new Attributes.Name('OpenIDE-Module-Specification-Version'), netbeansExt().specificationVersion)
+            mainAttributes.put(new Attributes.Name('OpenIDE-Module-Specification-Version'), netbeansExt().specificationVersion)
         }
         if (!moduleDeps.isEmpty()) {
-            manifest.getMainAttributes().put(
+            mainAttributes.put(
                     new Attributes.Name('OpenIDE-Module-Module-Dependencies'),
                     moduleDeps.entrySet().collect { it.key + ' > ' + it.value }.join(', '))
         }
         def classpath = computeClasspath()
         if (classpath != null && !classpath.isEmpty()) {
-            manifest.getMainAttributes().put(new Attributes.Name('Class-Path'), classpath)
+            mainAttributes.put(new Attributes.Name('Class-Path'), classpath)
+        }
+
+        def requires = netbeansExt().requires;
+        if (!requires.isEmpty()) {
+            mainAttributes.put(new Attributes.Name('OpenIDE-Module-Requires'), requires.join(', '))
         }
         def os = new FileOutputStream(manifestFile)
         manifest.write(os)

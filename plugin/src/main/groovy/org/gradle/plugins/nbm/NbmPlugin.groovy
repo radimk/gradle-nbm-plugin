@@ -26,6 +26,7 @@ public class NbmPlugin implements Plugin<Project> {
     private static final String MANIFEST_TASK = 'generateModuleManifest'
 
     void apply(Project project) {
+        project.apply plugin: 'java';
         project.logger.info "Registering deferred NBM plugin configuration..."
         project.plugins.withType(JavaPlugin) { configure(project) }
 
