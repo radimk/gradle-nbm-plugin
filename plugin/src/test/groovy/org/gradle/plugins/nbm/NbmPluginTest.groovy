@@ -78,4 +78,12 @@ public class NbmPluginTest {
         assertTrue(project.tasks.getByName('processResources').outputs.files.contains(project.file('build/generated-resources/resources')))
         assertTrue(project.tasks.getByName('mergeProperties').outputs.files.contains(project.file('build/generated-resources/output')))
     }
+
+    @Test
+    public void 'module name defaults to project name'() {
+        Project project = ProjectBuilder.builder().build()
+        project.project.plugins.apply(JavaPlugin)
+        project.project.plugins.apply(NbmPlugin)
+        assertEquals(project.name, project.nbm.moduleName)
+    }
 }

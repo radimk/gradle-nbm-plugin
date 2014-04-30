@@ -38,9 +38,7 @@ apply plugin: org.gradle.plugins.nbm.NbmPlugin
         GradleProject project = runTasks(integTestDir, "nbm")
 
         then:
-        def e = thrown(BuildException)
-        // deepcause is groovy.lang.MissingPropertyException: Could not find property 'MODULE_NAME' on root project 'integTest'
-        e != null
+        assertThat(new File(getIntegTestDir(), 'build/nbm/integTest.nbm'), FileMatchers.exists())
     }
 
     def "run nbm"() {
@@ -72,9 +70,11 @@ apply plugin: org.gradle.plugins.nbm.NbmPlugin
 
 nbm {
   moduleName = 'com.foo.acme'
-  keystore project.file('keystore')
-  nbm_alias 'myself'
-  storepass 'specialsauce'
+  keyStore {
+    keyStoreFile = project.file('keystore')
+    username = 'myself'
+    password = 'specialsauce'
+  }
 }
 """
         when:

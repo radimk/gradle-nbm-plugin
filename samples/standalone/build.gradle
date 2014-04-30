@@ -26,9 +26,11 @@ repositories {
 nbm {
     moduleName = 'com.foo.acme'
     // Module signing data
-    // keystore project.file('my_keystore')
-    // nbm_alias 'netbeansModule'
-    // storepass netbeansStorepass
+    keyStore {
+         keyStoreFile = project.file('keystore')
+         username = 'myself'
+         password = 'specialsauce'
+    }
 }
 
 dependencies {
