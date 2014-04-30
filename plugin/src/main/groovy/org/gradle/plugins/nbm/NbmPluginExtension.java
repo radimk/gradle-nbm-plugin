@@ -16,6 +16,10 @@ public final class NbmPluginExtension {
     private final NbmKeyStoreDef keyStore;
     private final Project project;
     private final List<String> requires;
+    private String localizingBundle;
+    private String moduleInstall;
+    private final NbmFriendPackages friendPackages;
+    private final NbmManifest manifest;
 
     private final Configuration harnessConfiguration;
 
@@ -28,15 +32,55 @@ public final class NbmPluginExtension {
         this.moduleName = null;
         this.specificationVersion = null;
         this.implementationVersion = null;
+        this.localizingBundle = null;
+        this.moduleInstall = null;
         this.eager = false;
         this.autoload = false;
+        this.manifest = new NbmManifest();
+        this.friendPackages = new NbmFriendPackages();
         this.keyStore = new NbmKeyStoreDef();
         this.requires = new LinkedList<>();
         this.project = project;
     }
 
+    public NbmFriendPackages getFriendPackages() {
+        return friendPackages;
+    }
+
+    public void friendPackages(Closure<NbmFriendPackages> configBlock) {
+        configBlock.setResolveStrategy(Closure.DELEGATE_FIRST);
+        configBlock.setDelegate(friendPackages);
+        configBlock.call(friendPackages);
+    }
+
+    public NbmManifest getManifest() {
+        return manifest;
+    }
+
+    public void manifest(Closure<NbmManifest> configBlock) {
+        configBlock.setResolveStrategy(Closure.DELEGATE_FIRST);
+        configBlock.setDelegate(manifest);
+        configBlock.call(manifest);
+    }
+
     public Configuration getHarnessConfiguration() {
         return harnessConfiguration;
+    }
+
+    public String getModuleInstall() {
+        return moduleInstall;
+    }
+
+    public void setModuleInstall(String moduleInstall) {
+        this.moduleInstall = moduleInstall;
+    }
+
+    public String getLocalizingBundle() {
+        return localizingBundle;
+    }
+
+    public void setLocalizingBundle(String localizingBundle) {
+        this.localizingBundle = localizingBundle;
     }
 
     public List<String> getRequires() {
