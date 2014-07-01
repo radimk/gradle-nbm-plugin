@@ -43,7 +43,7 @@ dependencies {
   compile "org.codehaus.mojo:nbm-maven-harness:7.4"
   runtime 'org.slf4j:slf4j-simple:1.7.5'
 
-  testCompile "org.spockframework:spock-core:0.7-groovy-1.8", {
+  testCompile "org.spockframework:spock-core:0.7-groovy-2.0", {
     exclude module: "groovy-all"
   }
   testCompile "junit:junit:4.11"
