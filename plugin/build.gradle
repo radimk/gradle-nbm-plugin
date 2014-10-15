@@ -4,19 +4,26 @@ buildscript {
     }
     dependencies {
         classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:0.3'
+        classpath "org.ajoberstar:gradle-git:0.11.0"
     }
 }
-
 apply plugin: 'groovy'
 apply plugin: 'java'
 // apply plugin: 'maven'
 apply plugin: 'idea'
 apply plugin: 'maven-publish'
 apply plugin: 'bintray'
+apply plugin: "org.ajoberstar.release-opinion"
 
 def compatibilityVersion = 1.7
 sourceCompatibility = compatibilityVersion
 targetCompatibility = compatibilityVersion
+
+import org.ajoberstar.grgit.Grgit
+release {
+    grgit = Grgit.open(project.rootProject.file('.'))
+}
+tasks.release.dependsOn 'build', 'uploadArchives'
 
 [compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
 
@@ -93,7 +100,7 @@ publishing {
         mavenJava(MavenPublication) {
             groupId 'cz.kubacki.gradle.plugins'
             artifactId 'gradle-nbm-plugin'
-            version baseVersion + (project.hasProperty('BUILD_VERSION') ? '.' + project.BUILD_VERSION : '-SNAPSHOT')
+            version project.version
 
             from components.java
             artifact sourcesJar {
