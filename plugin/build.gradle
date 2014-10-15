@@ -23,7 +23,8 @@ import org.ajoberstar.grgit.Grgit
 release {
     grgit = Grgit.open(project.rootProject.file('.'))
 }
-tasks.release.dependsOn 'build', 'uploadArchives'
+tasks.release.dependsOn 'build', 'bintrayUpload'
+tasks.bintrayUpload.dependsOn 'jar', 'javadocJar', 'sourcesJar'
 
 [compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
 
