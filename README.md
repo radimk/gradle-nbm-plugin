@@ -40,3 +40,10 @@ A Gradle plugin to build NetBeans modules and RCP applications.
 * Run it
 * Create an installer
 * Run tests
+
+# Development notes
+
+To do a release run
+```
+./gradlew release -Prelease.scope=minor -Prelease.stage=final
+```
