@@ -66,6 +66,12 @@ class NetBeansTask extends ConventionTask {
         if (!moduleDir.isDirectory()) {
             moduleDir.mkdirs()
         }
+        def timestamp = new File(moduleDir, ".lastModified")
+        if (timestamp.exists()) {
+            timestamp.setLastModified(System.currentTimeMillis())
+        } else {
+            timestamp.createNewFile()
+        }
         // TODO handle eager/autoload
         def modulesDir = new File(moduleDir, 'modules')
         def modulesExtDir = new File(modulesDir, 'ext')

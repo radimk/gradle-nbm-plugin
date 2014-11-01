@@ -161,6 +161,7 @@ MyKey=value
         assertThat(new File(getIntegTestDir(), 'build/module/config/Modules/com-foo-acme.xml'), FileMatchers.exists())
         assertThat(moduleJar, FileMatchers.exists())
         assertThat(new File(getIntegTestDir(), 'build/module/update_tracking/com-foo-acme.xml'), FileMatchers.exists())
+        assertThat(new File(getIntegTestDir(), 'build/module/.lastModified'), FileMatchers.exists())
 
         Iterables.contains(moduleDependencies(moduleJar), 'org.openide.util > 8.33.1')
         Iterables.contains(moduleDependencies(moduleJar), 'org.openide.awt > 7.59.1')
