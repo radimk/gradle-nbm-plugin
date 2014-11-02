@@ -1,15 +1,15 @@
 buildscript {
     repositories {
         jcenter()
-        mavenCentral()
-        maven {
-            url uri('../../plugin/build/repo')
-        }
+        // uncomment following to use development copy created by running
+        // ./gradlew :nbmPlugin:publish 
+        // from the project root directory
+        // maven {
+        //     url uri('../../plugin/build/repo')
+        // }
     }
     dependencies {
-        classpath group: 'cz.kubacki.gradle.plugins',
-                   name: 'gradle-nbm-plugin',
-                version: '1.7+'
+        classpath "cz.kubacki.gradle.plugins:gradle-nbm-plugin:1.9.0"
         gradleApi()
     }
 }

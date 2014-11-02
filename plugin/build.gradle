@@ -120,8 +120,9 @@ publishing {
 }
 
 bintray {
-    user = bintrayUser
-    key = bintrayKey
+    // Bintray upload will only work if you have BinTray credentials
+    user = hasProperty('bintrayUser') ? bintrayUser : "bintray username"
+    key = hasProperty('bintrayKey') ? bintrayKey : "bintray key"
     publications = ['mavenJava']
     pkg {
         repo = 'maven'
