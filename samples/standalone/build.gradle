@@ -56,6 +56,6 @@ task netBeansRun(type: Exec) {
 
     workingDir "${project.buildDir}"
 
-    //on windows:
-    commandLine netBeansInstallDir + '/bin/netbeans', '--userdir', "$project.buildDir/testuserdir"
+    def executable = System.getProperty('os.name').toLowerCase().contains('windows') ? 'netbeans.exe' : 'netbeans'
+    commandLine netBeansInstallDir + '/bin/' + executable, '--userdir', "$project.buildDir/testuserdir"
 }
