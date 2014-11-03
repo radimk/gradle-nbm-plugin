@@ -46,9 +46,6 @@ dependencies {
 
 task netBeansRun(type: Exec) {
     doFirst {
-        if (!project.hasProperty('netBeansInstallDir')) {
-            throw new GradleException("missing netBeansInstallDir property")
-        }
         def confFile = project.file("$project.buildDir/testuserdir/etc/netbeans.conf")
         confFile.parentFile.mkdirs()
         confFile.write "netbeans_extraclusters=\"$project.buildDir/module\""
@@ -57,5 +54,10 @@ task netBeansRun(type: Exec) {
     workingDir "${project.buildDir}"
 
     def executable = System.getProperty('os.name').toLowerCase().contains('windows') ? 'netbeans.exe' : 'netbeans'
-    commandLine netBeansInstallDir + '/bin/' + executable, '--userdir', "$project.buildDir/testuserdir"
+    if (project.hasProperty('netBeansInstallDir')) {
+        executable = netBeansInstallDir + '/bin/' + executable
+    } else {
+        logger.warn('netBeansInstallDir property is not specified. Assuming \'netbeans\' executable is on PATH.')
+    }
+    commandLine executable, '--userdir', "$project.buildDir/testuserdir"
 }
