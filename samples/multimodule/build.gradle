@@ -1,0 +1,167 @@
+String.metaClass.getDotted = { delegate.replace('-', '.') }
+
+
+
+buildscript {
+	repositories {
+		maven { url 'http://repo.spring.io/plugins-release' }
+		maven { url 'http://192.168.3.209/artifactory/libs-snapshot-local' }
+		maven { url 'http://192.168.3.209/artifactory/libs-release-local' }
+	}
+	dependencies {
+		classpath 'org.mirah:mirah-complete:0.1.5-SNAPSHOT'
+		classpath 'cz.kubacki.gradle.plugins:gradle-nbm-plugin:1.9.1'
+		gradleApi()
+	}
+}
+
+
+
+allprojects  {
+	apply plugin: 'java'
+	apply plugin: 'maven'
+	apply plugin: 'idea'
+
+	group = 'ru.programpark.vector'
+	version = 1.0
+
+	sourceCompatibility = 1.8
+	targetCompatibility = 1.8
+
+	[compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
+
+	repositories {
+		mavenLocal()
+		maven { url 'http://192.168.3.209/artifactory/repo' }
+		maven { url 'http://192.168.3.209/artifactory/ext-release-local' }
+		maven { url 'http://192.168.3.209/artifactory/libs-snapshot-local' }
+	}
+}
+
+
+subprojects { it ->
+
+	if(it.name != 'olap-server') // war-plugin has providedCompile too
+		apply plugin: 'cz.kubacki.nbm'
+
+	def t = task copyMirahTmpClasses(type: Copy) {
+		from 'lib/mirah-tmp-classes'
+		into 'build/classes/main'
+		include '**'
+	}
+	tasks.jar.dependsOn t
+}
+
+
+
+def home = {
+	String h = System.getenv('NETBEANS_HOME')
+	if (!(h && new File(h).exists()))
+		throw new InvalidUserDataException('NETBEANS_HOME environment variable not specified or invalid')
+	h
+}
+
+project.configurations { everything }
+
+
+dependencies {
+	String h = home()
+	runtime fileTree(dir: "$h/platform/lib", include: ['*.jar'])
+	runtime fileTree(dir: "$h/platform/lib/locale", include: ['*.jar'])
+
+	subprojects.each { subproject ->
+		everything subproject
+	}
+}
+
+
+
+def clusters = { includeOurs = true ->
+	def dirs = (new File("${home()}/etc/netbeans.clusters").readLines()*.trim().findAll { !(it.isEmpty() || it.startsWith('#'))  } - 'platform').collect { "${home()}/$it" }
+	if(includeOurs) dirs += project.subprojects.collect { "${it.buildDir}/module" }
+	dirs.join(File.pathSeparator)
+}
+
+task launch(type: Exec) {
+	doFirst {
+
+		workingDir project.file('.')
+
+		String executable = 'netbeans'
+		if (System.getProperty('os.name').toLowerCase().contains('windows'))
+			executable = System.getProperty('os.arch').contains('64') ? 'netbeans64.exe' : 'netbeans.exe'
+
+		executable = "${home()}/bin/$executable"
+
+		def args = [executable, '--userdir', "$workingDir/distribution/userdir", '--clusters', clusters()]
+
+		if (project.ext.has('debug'))
+			args << '-J-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005'
+
+		commandLine args
+	}
+}
+
+task debugLaunch(type: Exec) {
+	doFirst {
+		project.ext.set('debug', true)
+	}
+	finalizedBy tasks.launch
+}
+
+task stockLaunch(type: Exec) {
+	doFirst {
+
+		workingDir project.file('.')
+
+		String executable = 'netbeans'
+		if (System.getProperty('os.name').toLowerCase().contains('windows'))
+			executable = System.getProperty('os.arch').contains('64') ? 'netbeans64.exe' : 'netbeans.exe'
+
+		executable = "${home()}/bin/$executable"
+
+		def args = [executable, '--userdir', "$workingDir/distribution/userdir", '--clusters', clusters(false)]
+
+		if (project.ext.has('debug'))
+			args << '-J-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005'
+
+		commandLine args
+	}
+}
+
+
+
+idea.project.ipr {
+	withXml {
+		def parser = new groovy.util.XmlParser()
+		def root = it.asNode()
+		def runcfgmgr = root.component.find { it.@name == 'ProjectRunConfigurationManager' }
+		if(!runcfgmgr) {
+			runcfgmgr = parser.parseText('<component name="ProjectRunConfigurationManager" />')
+			root.append(runcfgmgr)
+		}
+		if(!runcfgmgr.configuration.find { it.@name == rootProject.name }) {
+			def jdkhome = new File(System.getProperty('java.home'))
+			if(jdkhome.name == 'jre')
+				jdkhome = jdkhome.parent
+			runcfgmgr.append(parser.parseText("""
+<configuration default="false" name="${rootProject.name}" type="Application" factoryName="Application" singleton="true">
+	<extension name="coverage" enabled="false" merge="false" />
+	<option name="MAIN_CLASS_NAME" value="org.netbeans.Main" />
+	<option name="VM_PARAMETERS" value="-Dnetbeans.home=&quot;${home()}/platform&quot; -Dnetbeans.dirs=&quot;${clusters()}&quot; -Dnetbeans.user=&quot;distribution/userdir&quot; -Djdk.home=&quot;${jdkhome}&quot;" />
+	<option name="WORKING_DIRECTORY" value="file://\$PROJECT_DIR\$" />
+	<option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
+	<option name="ALTERNATIVE_JRE_PATH" value="" />
+	<option name="ENABLE_SWING_INSPECTOR" value="false" />
+	<option name="ENV_VARIABLES" />
+	<option name="PASS_PARENT_ENVS" value="true" />
+	<module name="${rootProject.name}" />
+	<envs />
+	<method>
+	<option name="Make" enabled="false" />
+	</method>
+</configuration>
+"""))
+		}
+	}
+}
