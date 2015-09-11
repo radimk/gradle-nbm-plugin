@@ -1,22 +1,18 @@
 package org.gradle.plugins.nbm
 
-import org.apache.tools.ant.taskdefs.Taskdef
-import org.apache.tools.ant.types.Path
-import org.gradle.api.DefaultTask
+import org.gradle.api.artifacts.ResolvedArtifact
 import org.gradle.api.artifacts.ResolvedDependency
 import org.gradle.api.file.FileCollection
 import org.gradle.api.file.FileVisitDetails
 import org.gradle.api.internal.ConventionTask
-import org.gradle.api.tasks.Input
-import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
+
 import java.nio.file.Files
-import java.util.Date
+import java.text.SimpleDateFormat
 import java.util.jar.Attributes
 import java.util.jar.JarFile
 import java.util.jar.Manifest
-import java.text.SimpleDateFormat
 
 class ModuleManifestTask extends ConventionTask {
     @OutputFile
@@ -66,10 +62,16 @@ class ModuleManifestTask extends ConventionTask {
         Map<String, String> result = new HashMap<String, String>()
 
         Map<String, String> moduleDeps = new HashMap<>()
+
         def mainSourceSet = project.sourceSets.main
-        def compileConfig = project.configurations.findByName(mainSourceSet.compileConfigurationName)
-        def resolvedConfiguration = compileConfig.resolvedConfiguration
-        resolvedConfiguration.firstLevelModuleDependencies.each { ResolvedDependency it ->
+        def compileConfig = project.configurations.findByName(mainSourceSet.compileConfigurationName).resolvedConfiguration
+
+        HashSet<ResolvedArtifact> implArtifacts = new HashSet<>()
+        project.configurations.implementation.resolvedConfiguration.firstLevelModuleDependencies.each { ResolvedDependency it ->
+            implArtifacts.addAll(it.moduleArtifacts)
+        }
+
+        compileConfig.firstLevelModuleDependencies.each { ResolvedDependency it ->
             // println 'module ' + it.name + ', ' + it.id.id
             it.moduleArtifacts.each { a ->
                 // println '  artifact ' + a + ' file ' + a.file
@@ -78,8 +80,12 @@ class ModuleManifestTask extends ConventionTask {
                     def attrs = jar.manifest?.mainAttributes
                     def moduleName = attrs?.getValue(new Attributes.Name('OpenIDE-Module'))
                     def moduleVersion = attrs?.getValue(new Attributes.Name('OpenIDE-Module-Specification-Version'))
+                    def implVersion = attrs?.getValue(new Attributes.Name('OpenIDE-Module-Implementation-Version'))
                     if (moduleName && moduleVersion) {
-                        moduleDeps.put(moduleName, moduleVersion)
+                        if(implArtifacts.contains(a))
+                            moduleDeps.put(moduleName, " = $implVersion")
+                        else
+                            moduleDeps.put(moduleName, " > $moduleVersion")
                     }
                 }
             }
@@ -92,11 +98,11 @@ class ModuleManifestTask extends ConventionTask {
             result.put('Class-Path', classpath)
         }
 
-        if (!moduleDeps.isEmpty()) {
+        if (!moduleDeps.isEmpty())
             result.put(
                     'OpenIDE-Module-Module-Dependencies',
-                    moduleDeps.entrySet().collect { it.key + ' > ' + it.value }.join(', '))
-        }
+                    moduleDeps.entrySet().collect { it.key + it.value }.join(', ')
+            )
 
         result.put('Created-By', 'Gradle NBM plugin')
 
@@ -142,7 +148,7 @@ class ModuleManifestTask extends ConventionTask {
         //   were specified.
 
         def manifest = new Manifest()
-        def mainAttributes = manifest.getMainAttributes()
+        def mainAttributes = manifest.mainAttributes
 
         getManifestEntries().each { key, value ->
             println 'add manifest entry ' + key + ': ' + value + ' / ' + (value == null)
@@ -172,8 +178,8 @@ class ModuleManifestTask extends ConventionTask {
             if (!fvd.name.endsWith('jar')) return
 
             JarFile jar = new JarFile(fvd.file)
-            def attrs = jar.manifest.mainAttributes
-            def attrValue = attrs.getValue(new Attributes.Name('OpenIDE-Module'))
+            def attrs = jar.manifest?.mainAttributes
+            def attrValue = attrs?.getValue(new Attributes.Name('OpenIDE-Module'))
             if (attrValue != null) return
 
             // JAR but not NetBeans module

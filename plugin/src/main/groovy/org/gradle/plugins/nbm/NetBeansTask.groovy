@@ -1,19 +1,12 @@
 package org.gradle.plugins.nbm
-
 import org.apache.tools.ant.taskdefs.Taskdef
 import org.apache.tools.ant.types.FileSet
 import org.apache.tools.ant.types.Path
-import org.gradle.api.DefaultTask
 import org.gradle.api.file.CopySpec
 import org.gradle.api.file.FileCollection
 import org.gradle.api.file.FileTreeElement
 import org.gradle.api.internal.ConventionTask
-import org.gradle.api.tasks.Input
-import org.gradle.api.tasks.InputFiles
-import org.gradle.api.tasks.Optional
-import org.gradle.api.tasks.OutputDirectory
-import org.gradle.api.tasks.OutputFile
-import org.gradle.api.tasks.TaskAction
+import org.gradle.api.tasks.*
 
 import java.util.jar.Attributes
 import java.util.jar.JarFile
@@ -90,8 +83,8 @@ class NetBeansTask extends ConventionTask {
                 if (!fte.name.endsWith('jar')) return true
 
                 JarFile jar = new JarFile(fte.file)
-                def attrs = jar.manifest.mainAttributes
-                def attrValue = attrs.getValue(new Attributes.Name('OpenIDE-Module'))
+                def attrs = jar.manifest?.mainAttributes
+                def attrValue = attrs?.getValue(new Attributes.Name('OpenIDE-Module'))
                 attrValue != null
             }
         }
