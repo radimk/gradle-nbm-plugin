@@ -1,12 +1,9 @@
 package org.gradle.plugins.nbm
-
 import org.gradle.api.Action
-import org.gradle.api.GradleException;
-import org.gradle.api.Project
 import org.gradle.api.Plugin
+import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
 import org.gradle.api.artifacts.ConfigurationContainer
-import org.gradle.api.file.CopySpec
 import org.gradle.api.file.FileCollection
 import org.gradle.api.plugins.BasePlugin
 import org.gradle.api.plugins.JavaPlugin
@@ -23,6 +20,7 @@ import java.util.concurrent.Callable
 public class NbmPlugin implements Plugin<Project> {
     public static final String PROVIDED_COMPILE_CONFIGURATION_NAME = "providedCompile";
     public static final String PROVIDED_RUNTIME_CONFIGURATION_NAME = "providedRuntime";
+    public static final String IMPLEMENTATION_CONFIGURATION_NAME = "implementation";
 
     private static final String NBM_TASK = 'nbm'
     private static final String NETBEANS_TASK = 'netbeans'
@@ -130,7 +128,11 @@ public class NbmPlugin implements Plugin<Project> {
         Configuration provideRuntimeConfiguration = configurationContainer.create(PROVIDED_RUNTIME_CONFIGURATION_NAME).setVisible(false).
                 extendsFrom(provideCompileConfiguration).
                 setDescription("Additional runtime classpath for libraries that should not be part of the NBM archive.");
-        configurationContainer.getByName(JavaPlugin.COMPILE_CONFIGURATION_NAME).extendsFrom(provideCompileConfiguration);
+        Configuration implementationConfiguration = configurationContainer.create(IMPLEMENTATION_CONFIGURATION_NAME).setVisible(false).
+                setDescription("NBM module's implementation dependencies");
+        configurationContainer.getByName(JavaPlugin.COMPILE_CONFIGURATION_NAME)
+                .extendsFrom(provideCompileConfiguration)
+                .extendsFrom(implementationConfiguration);
         configurationContainer.getByName(JavaPlugin.RUNTIME_CONFIGURATION_NAME).extendsFrom(provideRuntimeConfiguration);
     }
 

@@ -1,17 +1,14 @@
 package org.gradle.plugins.nbm.integtest
-
 import com.google.common.base.Splitter
 import com.google.common.collect.Iterables
 import com.google.common.io.Files
-import org.gradle.tooling.BuildException
 import org.gradle.tooling.model.GradleProject
 
 import java.util.jar.Attributes
 import java.util.jar.JarFile
-import java.util.zip.ZipFile
 
-import static org.hamcrest.MatcherAssert.*
-import static org.hamcrest.Matchers.*
+import static org.hamcrest.MatcherAssert.assertThat
+import static org.hamcrest.Matchers.not
 
 class StandaloneNbmProjectTest extends AbstractIntegrationTest {
     def "load project"() {
@@ -210,15 +207,15 @@ public class Service {
 
     private Iterable<String> moduleDependencies(File jarFile) {
         JarFile jar = new JarFile(jarFile)
-        def attrs = jar.manifest.mainAttributes
-        def attrValue = attrs.getValue(new Attributes.Name('OpenIDE-Module-Module-Dependencies'))
+        def attrs = jar.manifest?.mainAttributes
+        def attrValue = attrs?.getValue(new Attributes.Name('OpenIDE-Module-Module-Dependencies'))
         jar.close()
         Splitter.on(',').trimResults().split(attrValue != null ? attrValue : '')
     }
 
     private Iterable<String> moduleClasspath(File jarFile) {
         JarFile jar = new JarFile(jarFile)
-        def attrs = jar.manifest.mainAttributes
+        def attrs = jar.manifest?.mainAttributes
         def attrValue = attrs.getValue(new Attributes.Name('Class-Path'))
         jar.close()
         Splitter.on(',').trimResults().split(attrValue != null ? attrValue : '')

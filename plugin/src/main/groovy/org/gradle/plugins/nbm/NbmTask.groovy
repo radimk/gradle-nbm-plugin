@@ -1,11 +1,8 @@
 package org.gradle.plugins.nbm
-
 import org.apache.tools.ant.taskdefs.Taskdef
 import org.apache.tools.ant.types.Path
-import org.gradle.api.DefaultTask
 import org.gradle.api.file.FileCollection
 import org.gradle.api.internal.ConventionTask
-import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFiles
 import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.OutputFile
