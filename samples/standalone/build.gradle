@@ -9,7 +9,7 @@ buildscript {
         // }
     }
     dependencies {
-        classpath "cz.kubacki.gradle.plugins:gradle-nbm-plugin:1.9.1"
+        classpath "cz.kubacki.gradle.plugins:gradle-nbm-plugin:1.10.0"
         gradleApi()
     }
 }
