@@ -34,7 +34,8 @@ public class NbmPluginTest {
         project.project.plugins.apply(NbmPlugin)
 
         def configuration = project.configurations.getByName(JavaPlugin.COMPILE_CONFIGURATION_NAME)
-        assertThat(Configurations.getNames(configuration.extendsFrom), equalTo(Sets.newHashSet(NbmPlugin.PROVIDED_COMPILE_CONFIGURATION_NAME, NbmPlugin.IMPLEMENTATION_CONFIGURATION_NAME)))
+        assertThat(Configurations.getNames(configuration.extendsFrom),
+                equalTo(Sets.newHashSet(NbmPlugin.PROVIDED_COMPILE_CONFIGURATION_NAME, NbmPlugin.IMPLEMENTATION_CONFIGURATION_NAME)))
         assertFalse(configuration.visible)
         assertTrue(configuration.transitive)
 

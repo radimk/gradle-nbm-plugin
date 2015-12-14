@@ -35,7 +35,7 @@ NetBeans evangelist Geertjan Wielenga wrote a nice introductory post about [How 
 * possibly generate files from annotations into special directory to simplify merges
 * solve AUC generation
 * testing
-* module dependencies: implementation deps, use new configuration(s) to allow changes
+* module dependencies: use new configuration(s) to allow changes
 * solve how to run multiple modules together (fileTree copying + netBeansRun)
 * autoload/eager modules
 * RCP applications
