@@ -53,9 +53,11 @@ public class NbmPlugin implements Plugin<Project> {
                 task.classpath({
                         FileCollection runtimeClasspath = project.getConvention().getPlugin(JavaPluginConvention.class)
                                 .getSourceSets().getByName(SourceSet.MAIN_SOURCE_SET_NAME).getRuntimeClasspath();
-                        Configuration providedRuntime = project.getConfigurations().getByName(
-                                PROVIDED_RUNTIME_CONFIGURATION_NAME);
-                        return runtimeClasspath.minus(providedRuntime);
+                    Configuration providedRuntime = project.getConfigurations().getByName(
+                            PROVIDED_RUNTIME_CONFIGURATION_NAME);
+                    Configuration implementation = project.getConfigurations().getByName(
+                            IMPLEMENTATION_CONFIGURATION_NAME);
+                        return runtimeClasspath.minus(providedRuntime).minus(implementation);
                     });
             }
         });
