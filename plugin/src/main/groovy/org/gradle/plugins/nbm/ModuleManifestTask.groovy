@@ -71,6 +71,11 @@ class ModuleManifestTask extends ConventionTask {
             implArtifacts.addAll(it.moduleArtifacts)
         }
 
+        HashSet<ResolvedArtifact> bundleArtifacts = new HashSet<>()
+        project.configurations.bundle.resolvedConfiguration.firstLevelModuleDependencies.each { ResolvedDependency it ->
+            bundleArtifacts.addAll(it.moduleArtifacts)
+        }
+
         compileConfig.firstLevelModuleDependencies.each { ResolvedDependency it ->
             // println 'module ' + it.name + ', ' + it.id.id
             it.moduleArtifacts.each { a ->
@@ -79,7 +84,7 @@ class ModuleManifestTask extends ConventionTask {
                     JarFile jar = new JarFile(a.file)
                     def attrs = jar.manifest?.mainAttributes
                     def bundleName = attrs?.getValue(new Attributes.Name('Bundle-SymbolicName'))
-                    if(bundleName) {
+                    if(bundleName && bundleArtifacts.contains(a)) {
                         moduleDeps.put(bundleName.split(';').first(), '')
                     } else {
                         def moduleName = attrs?.getValue(new Attributes.Name('OpenIDE-Module'))
