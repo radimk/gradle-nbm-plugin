@@ -78,14 +78,19 @@ class ModuleManifestTask extends ConventionTask {
                 if (a.file?.exists() && 'jar' == a.extension) {
                     JarFile jar = new JarFile(a.file)
                     def attrs = jar.manifest?.mainAttributes
-                    def moduleName = attrs?.getValue(new Attributes.Name('OpenIDE-Module'))
-                    def moduleVersion = attrs?.getValue(new Attributes.Name('OpenIDE-Module-Specification-Version'))
-                    def implVersion = attrs?.getValue(new Attributes.Name('OpenIDE-Module-Implementation-Version'))
-                    if (moduleName && moduleVersion) {
-                        if(implArtifacts.contains(a))
-                            moduleDeps.put(moduleName, " = $implVersion")
-                        else
-                            moduleDeps.put(moduleName, " > $moduleVersion")
+                    def bundleName = attrs?.getValue(new Attributes.Name('Bundle-SymbolicName'))
+                    if(bundleName) {
+                        moduleDeps.put(bundleName.split(';').first(), '')
+                    } else {
+                        def moduleName = attrs?.getValue(new Attributes.Name('OpenIDE-Module'))
+                        def moduleVersion = attrs?.getValue(new Attributes.Name('OpenIDE-Module-Specification-Version'))
+                        def implVersion = attrs?.getValue(new Attributes.Name('OpenIDE-Module-Implementation-Version'))
+                        if(moduleName && moduleVersion) {
+                            if(implArtifacts.contains(a))
+                                moduleDeps.put(moduleName, " = $implVersion")
+                            else
+                                moduleDeps.put(moduleName, " > $moduleVersion")
+                        }
                     }
                 }
             }
