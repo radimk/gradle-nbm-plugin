@@ -21,6 +21,7 @@ public class NbmPlugin implements Plugin<Project> {
     public static final String PROVIDED_COMPILE_CONFIGURATION_NAME = "providedCompile";
     public static final String PROVIDED_RUNTIME_CONFIGURATION_NAME = "providedRuntime";
     public static final String IMPLEMENTATION_CONFIGURATION_NAME = "implementation";
+    public static final String BUNDLE_CONFIGURATION_NAME = "bundle";
 
     private static final String NBM_TASK = 'nbm'
     private static final String NETBEANS_TASK = 'netbeans'
@@ -53,9 +54,13 @@ public class NbmPlugin implements Plugin<Project> {
                 task.classpath({
                         FileCollection runtimeClasspath = project.getConvention().getPlugin(JavaPluginConvention.class)
                                 .getSourceSets().getByName(SourceSet.MAIN_SOURCE_SET_NAME).getRuntimeClasspath();
-                        Configuration providedRuntime = project.getConfigurations().getByName(
-                                PROVIDED_RUNTIME_CONFIGURATION_NAME);
-                        return runtimeClasspath.minus(providedRuntime);
+                    Configuration providedRuntime = project.getConfigurations().getByName(
+                            PROVIDED_RUNTIME_CONFIGURATION_NAME);
+                    Configuration implementation = project.getConfigurations().getByName(
+                            IMPLEMENTATION_CONFIGURATION_NAME);
+                    Configuration bundle = project.getConfigurations().getByName(
+                            BUNDLE_CONFIGURATION_NAME);
+                        return runtimeClasspath.minus(providedRuntime).minus(implementation).minus(bundle);
                     });
             }
         });
@@ -130,9 +135,12 @@ public class NbmPlugin implements Plugin<Project> {
                 setDescription("Additional runtime classpath for libraries that should not be part of the NBM archive.");
         Configuration implementationConfiguration = configurationContainer.create(IMPLEMENTATION_CONFIGURATION_NAME).setVisible(false).
                 setDescription("NBM module's implementation dependencies");
+        Configuration bundleConfiguration = configurationContainer.create(BUNDLE_CONFIGURATION_NAME).setVisible(false).
+                setDescription("NBM module's dependencies on OSGi bundles");
         configurationContainer.getByName(JavaPlugin.COMPILE_CONFIGURATION_NAME)
                 .extendsFrom(provideCompileConfiguration)
-                .extendsFrom(implementationConfiguration);
+                .extendsFrom(implementationConfiguration)
+                .extendsFrom(bundleConfiguration);
         configurationContainer.getByName(JavaPlugin.RUNTIME_CONFIGURATION_NAME).extendsFrom(provideRuntimeConfiguration);
     }
 

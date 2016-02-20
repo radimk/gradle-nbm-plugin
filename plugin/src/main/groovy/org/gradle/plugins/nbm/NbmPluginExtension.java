@@ -1,14 +1,16 @@
 package org.gradle.plugins.nbm;
 
 import groovy.lang.Closure;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Objects;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.Configuration;
 
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Objects;
+
 public final class NbmPluginExtension {
     private String moduleName;
+    private String cluster;
     private String specificationVersion;
     private String implementationVersion;
     private boolean eager;
@@ -26,9 +28,10 @@ public final class NbmPluginExtension {
         Objects.requireNonNull(project, "project");
 
         this.harnessConfiguration = project.getConfigurations().detachedConfiguration(
-                project.getDependencies().create("org.codehaus.mojo:nbm-maven-harness:7.4"));
+                project.getDependencies().create("org.codehaus.mojo:nbm-maven-harness:8.1"));
 
         this.moduleName = null;
+        this.cluster = null;
         this.specificationVersion = null;
         this.implementationVersion = null;
         this.localizingBundle = null;
@@ -104,6 +107,14 @@ public final class NbmPluginExtension {
 
     public void setModuleName(String moduleName) {
         this.moduleName = moduleName;
+    }
+
+    public String getCluster() {
+        return cluster;
+    }
+
+    public void setCluster(String cluster) {
+        this.cluster = cluster;
     }
 
     public String getSpecificationVersion() {

@@ -71,6 +71,11 @@ class ModuleManifestTask extends ConventionTask {
             implArtifacts.addAll(it.moduleArtifacts)
         }
 
+        HashSet<ResolvedArtifact> bundleArtifacts = new HashSet<>()
+        project.configurations.bundle.resolvedConfiguration.firstLevelModuleDependencies.each { ResolvedDependency it ->
+            bundleArtifacts.addAll(it.moduleArtifacts)
+        }
+
         compileConfig.firstLevelModuleDependencies.each { ResolvedDependency it ->
             // println 'module ' + it.name + ', ' + it.id.id
             it.moduleArtifacts.each { a ->
@@ -78,14 +83,19 @@ class ModuleManifestTask extends ConventionTask {
                 if (a.file?.exists() && 'jar' == a.extension) {
                     JarFile jar = new JarFile(a.file)
                     def attrs = jar.manifest?.mainAttributes
-                    def moduleName = attrs?.getValue(new Attributes.Name('OpenIDE-Module'))
-                    def moduleVersion = attrs?.getValue(new Attributes.Name('OpenIDE-Module-Specification-Version'))
-                    def implVersion = attrs?.getValue(new Attributes.Name('OpenIDE-Module-Implementation-Version'))
-                    if (moduleName && moduleVersion) {
-                        if(implArtifacts.contains(a))
-                            moduleDeps.put(moduleName, " = $implVersion")
-                        else
-                            moduleDeps.put(moduleName, " > $moduleVersion")
+                    def bundleName = attrs?.getValue(new Attributes.Name('Bundle-SymbolicName'))
+                    if(bundleName && bundleArtifacts.contains(a)) {
+                        moduleDeps.put(bundleName.split(';').first(), '')
+                    } else {
+                        def moduleName = attrs?.getValue(new Attributes.Name('OpenIDE-Module'))
+                        def moduleVersion = attrs?.getValue(new Attributes.Name('OpenIDE-Module-Specification-Version'))
+                        def implVersion = attrs?.getValue(new Attributes.Name('OpenIDE-Module-Implementation-Version'))
+                        if(moduleName && moduleVersion) {
+                            if(implArtifacts.contains(a))
+                                moduleDeps.put(moduleName, " = $implVersion")
+                            else
+                                moduleDeps.put(moduleName, " > $moduleVersion")
+                        }
                     }
                 }
             }
