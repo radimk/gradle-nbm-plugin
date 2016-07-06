@@ -20,6 +20,7 @@ public final class NbmPluginExtension {
     private final List<String> requires;
     private String localizingBundle;
     private String moduleInstall;
+    private String moduleLayer;
     private final NbmFriendPackages friendPackages;
 
     private final Configuration harnessConfiguration;
@@ -36,6 +37,7 @@ public final class NbmPluginExtension {
         this.implementationVersion = null;
         this.localizingBundle = null;
         this.moduleInstall = null;
+        this.moduleLayer = null;
         this.eager = false;
         this.autoload = false;
         this.friendPackages = new NbmFriendPackages();
@@ -64,6 +66,14 @@ public final class NbmPluginExtension {
 
     public void setModuleInstall(String moduleInstall) {
         this.moduleInstall = moduleInstall;
+    }
+
+    public String getModuleLayer() {
+        return moduleLayer;
+    }
+
+    public void setModuleLayer(String moduleLayer) {
+        this.moduleLayer = moduleLayer;
     }
 
     public String getLocalizingBundle() {
