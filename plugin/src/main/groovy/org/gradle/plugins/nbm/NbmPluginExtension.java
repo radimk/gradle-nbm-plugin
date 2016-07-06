@@ -100,7 +100,7 @@ public final class NbmPluginExtension {
 
     public String getModuleName() {
         if (moduleName == null) {
-            return project.getName();
+            return project.getName().replace('-', '.');
         }
         return moduleName;
     }
