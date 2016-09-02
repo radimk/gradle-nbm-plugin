@@ -82,10 +82,18 @@ public class NbmPluginTest {
 
     @Test
     public void 'default module name is the project name.'() {
+        Project project = ProjectBuilder.builder().withName('my_test_project').build()
+        project.project.plugins.apply(NbmPlugin)
+
+        assertEquals(project.nbm.moduleName, 'my_test_project')
+    }
+
+    @Test
+    public void 'default module name is the project name with dots instead of dashes.'() {
         Project project = ProjectBuilder.builder().withName('my-test-project').build()
         project.project.plugins.apply(NbmPlugin)
 
-        assertEquals(project.nbm.moduleName, 'my-test-project')
+        assertEquals(project.nbm.moduleName, 'my.test.project')
     }
 
     @Test
