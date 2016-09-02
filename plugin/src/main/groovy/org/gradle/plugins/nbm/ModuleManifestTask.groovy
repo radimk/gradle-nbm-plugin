@@ -182,7 +182,7 @@ class ModuleManifestTask extends ConventionTask {
 
     private String computeClasspath() {
         FileCollection classpath = project.tasks.findByPath('netbeans').classpath
-        def jarNames = []
+        def jarNames = [] as Set
         classpath.asFileTree.visit { FileVisitDetails fvd ->
             if (fvd.directory) return
             if (!fvd.name.endsWith('jar')) return
