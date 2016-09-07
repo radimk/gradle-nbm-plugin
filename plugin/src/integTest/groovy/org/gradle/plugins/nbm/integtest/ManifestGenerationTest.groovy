@@ -74,6 +74,25 @@ nbm {
         assert manifest.containsKey('OpenIDE-Module-Build-Version')
     }
 
+    def "manifest file with module layer declaration"() {
+        // Set the moduleName because I have no idea what the project's name is,
+        // so can't rely on the default value for that
+        buildFile << """
+apply plugin: org.gradle.plugins.nbm.NbmPlugin
+version = '3.5.6'
+nbm {
+  moduleName = 'my-test-project'
+  moduleLayer = 'my/test/project/layer.xml'
+}
+"""
+        when:
+        GradleProject project = runTasks(integTestDir, "generateModuleManifest")
+
+        then:
+        def manifest = checkDefaultModuleManifest(project)
+        assert manifest.get('OpenIDE-Module-Layer') == 'my/test/project/layer.xml'
+    }
+
     def checkDefaultModuleManifest(GradleProject project) {
         def manifest = getGeneratedModuleManifest(project)
 
