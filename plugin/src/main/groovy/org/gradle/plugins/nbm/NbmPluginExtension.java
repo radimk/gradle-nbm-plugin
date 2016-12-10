@@ -48,7 +48,7 @@ public final class NbmPluginExtension {
         return friendPackages;
     }
 
-    public void friendPackages(Closure<NbmFriendPackages> configBlock) {
+    public void friendPackages(Closure<?> configBlock) {
         configBlock.setResolveStrategy(Closure.DELEGATE_FIRST);
         configBlock.setDelegate(friendPackages);
         configBlock.call(friendPackages);
