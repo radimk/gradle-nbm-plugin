@@ -83,4 +83,32 @@ nbm {
         assert manifest.get('Created-By') == 'Gradle NBM plugin'
         manifest
     }
+
+    def "manifest file with custom manifest entries"() {
+        // Set the moduleName because I have no idea what the project's name is,
+        // so can't rely on the default value for that
+        buildFile << """
+apply plugin: org.gradle.plugins.nbm.NbmPlugin
+version = '3.5.6'
+nbm {
+  String lazyValue = null
+  customManifest {
+    entry 'myTestKey', 'myTestValue'
+    entry 'myLazyKey', { lazyValue }
+  }
+
+  lazyValue = 'myLazyValue'
+
+  moduleName = 'my-test-project'
+  implementationVersion = version
+}
+"""
+        when:
+        GradleProject project = runTasks(integTestDir, "generateModuleManifest")
+
+        then:
+        def manifest = checkDefaultModuleManifest(project)
+        assert manifest.get('myTestKey') == 'myTestValue'
+        assert manifest.get('myLazyKey') == 'myLazyValue'
+    }
 }

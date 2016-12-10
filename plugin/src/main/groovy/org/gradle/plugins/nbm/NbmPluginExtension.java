@@ -1,6 +1,7 @@
 package org.gradle.plugins.nbm;
 
 import groovy.lang.Closure;
+import org.gradle.api.Action;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.Configuration;
 
@@ -21,6 +22,7 @@ public final class NbmPluginExtension {
     private String localizingBundle;
     private String moduleInstall;
     private final NbmFriendPackages friendPackages;
+    private final CustomManifestEntries customManifest;
 
     private final Configuration harnessConfiguration;
 
@@ -41,6 +43,7 @@ public final class NbmPluginExtension {
         this.friendPackages = new NbmFriendPackages();
         this.keyStore = new NbmKeyStoreDef();
         this.requires = new LinkedList<>();
+        this.customManifest = new CustomManifestEntries();
         this.project = project;
     }
 
@@ -48,10 +51,26 @@ public final class NbmPluginExtension {
         return friendPackages;
     }
 
-    public void friendPackages(Closure<?> configBlock) {
+    private static void configWith(Object arg, Closure<?> configBlock) {
         configBlock.setResolveStrategy(Closure.DELEGATE_FIRST);
-        configBlock.setDelegate(friendPackages);
-        configBlock.call(friendPackages);
+        configBlock.setDelegate(arg);
+        configBlock.call(arg);
+    }
+
+    public void friendPackages(Closure<?> configBlock) {
+        configWith(friendPackages, configBlock);
+    }
+
+    public CustomManifestEntries getCustomManifest() {
+        return customManifest;
+    }
+
+    public void customManifest(Action<? super CustomManifestEntries> configuration) {
+        configuration.execute(customManifest);
+    }
+
+    public void customManifest(Closure<?> configBlock) {
+        configWith(customManifest, configBlock);
     }
 
     public Configuration getHarnessConfiguration() {
