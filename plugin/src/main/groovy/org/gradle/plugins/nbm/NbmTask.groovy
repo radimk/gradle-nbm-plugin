@@ -64,6 +64,11 @@ class NbmTask extends ConventionTask {
             makenbm.homepage = homePage
         }
 
+        Boolean needsRestart = nbm.needsRestart
+        if (needsRestart != null) {
+            makenbm.needsrestart = needsRestart.toString()
+        }
+
         NbmKeyStoreDef keyStore = nbm.keyStore
         def keyStoreFile = EvaluateUtils.asPath(keyStore.keyStoreFile)
         if (keyStoreFile != null) {

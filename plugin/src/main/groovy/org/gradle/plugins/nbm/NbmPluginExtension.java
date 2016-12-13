@@ -25,6 +25,7 @@ public final class NbmPluginExtension {
     private File licenseFile;
     private String moduleAuthor;
     private String homePage;
+    private Boolean needsRestart;
 
     private final Configuration harnessConfiguration;
 
@@ -43,6 +44,7 @@ public final class NbmPluginExtension {
         this.licenseFile = null;
         this.moduleAuthor = null;
         this.homePage = null;
+        this.needsRestart = null;
         this.eager = false;
         this.autoload = false;
         this.friendPackages = new NbmFriendPackages();
@@ -63,6 +65,14 @@ public final class NbmPluginExtension {
 
     public Configuration getHarnessConfiguration() {
         return harnessConfiguration;
+    }
+
+    public Boolean getNeedsRestart() {
+        return needsRestart;
+    }
+
+    public void setNeedsRestart(Boolean needsRestart) {
+        this.needsRestart = needsRestart;
     }
 
     public String getHomePage() {
