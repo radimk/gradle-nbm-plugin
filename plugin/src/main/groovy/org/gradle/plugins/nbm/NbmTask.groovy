@@ -59,6 +59,11 @@ class NbmTask extends ConventionTask {
             makenbm.moduleauthor = moduleAuthor
         }
 
+        String homePage = nbm.homePage
+        if (homePage != null) {
+            makenbm.homepage = homePage
+        }
+
         NbmKeyStoreDef keyStore = nbm.keyStore
         def keyStoreFile = EvaluateUtils.asPath(keyStore.keyStoreFile)
         if (keyStoreFile != null) {
