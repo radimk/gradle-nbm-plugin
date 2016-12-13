@@ -23,6 +23,7 @@ public final class NbmPluginExtension {
     private String moduleInstall;
     private final NbmFriendPackages friendPackages;
     private File licenseFile;
+    private String moduleAuthor;
 
     private final Configuration harnessConfiguration;
 
@@ -39,6 +40,7 @@ public final class NbmPluginExtension {
         this.localizingBundle = null;
         this.moduleInstall = null;
         this.licenseFile = null;
+        this.moduleAuthor = null;
         this.eager = false;
         this.autoload = false;
         this.friendPackages = new NbmFriendPackages();
@@ -59,6 +61,14 @@ public final class NbmPluginExtension {
 
     public Configuration getHarnessConfiguration() {
         return harnessConfiguration;
+    }
+
+    public String getModuleAuthor() {
+        return moduleAuthor;
+    }
+
+    public void setModuleAuthor(String moduleAuthor) {
+        this.moduleAuthor = moduleAuthor;
     }
 
     public File getLicenseFile() {
