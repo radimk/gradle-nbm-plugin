@@ -15,7 +15,7 @@ import org.openide.util.NbBundle.Messages;
         displayName = "#CTL_HelloAction"
 )
 @ActionReference(path = "Menu/Help", position = 100)
-@Messages("CTL_HelloAction=Say hello")
+@Messages("CTL_HelloAction=Say hello from annotation")
 public final class HelloAction implements ActionListener {
 
     @Override
