@@ -4,6 +4,7 @@ import groovy.lang.Closure;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.Configuration;
 
+import java.io.File;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
@@ -21,6 +22,7 @@ public final class NbmPluginExtension {
     private String localizingBundle;
     private String moduleInstall;
     private final NbmFriendPackages friendPackages;
+    private File licenseFile;
 
     private final Configuration harnessConfiguration;
 
@@ -36,6 +38,7 @@ public final class NbmPluginExtension {
         this.implementationVersion = null;
         this.localizingBundle = null;
         this.moduleInstall = null;
+        this.licenseFile = null;
         this.eager = false;
         this.autoload = false;
         this.friendPackages = new NbmFriendPackages();
@@ -56,6 +59,16 @@ public final class NbmPluginExtension {
 
     public Configuration getHarnessConfiguration() {
         return harnessConfiguration;
+    }
+
+    public File getLicenseFile() {
+        return licenseFile;
+    }
+
+    public void setLicenseFile(Object licenseFile) {
+        this.licenseFile = licenseFile != null
+                ? project.file(licenseFile)
+                : null;
     }
 
     public String getModuleInstall() {
