@@ -12,6 +12,7 @@ import java.util.jar.Attributes
 import java.util.jar.JarFile
 
 class NetBeansTask extends ConventionTask {
+    public static final String TEST_USER_DIR_NAME = 'testuserdir'
 
     private FileCollection classpath
 
@@ -21,7 +22,7 @@ class NetBeansTask extends ConventionTask {
     private NbmPluginExtension netbeansExt() {
         project.extensions.nbm
     }
-    
+
     @Input
     File getInputModuleJarFile() {
         project.tasks.jar.archivePath
@@ -51,6 +52,14 @@ class NetBeansTask extends ConventionTask {
         this.classpath = project.files(oldClasspath ?: [], classpath)
     }
 
+    private File getCacheDir() {
+        File result = project.buildDir
+        result = new File(result, TEST_USER_DIR_NAME)
+        result = new File(result, 'var')
+        result = new File(result, 'cache')
+        return result
+    }
+
     @TaskAction
     void generate() {
         project.logger.info "NetBeansTask running"
@@ -68,6 +77,8 @@ class NetBeansTask extends ConventionTask {
         // TODO handle eager/autoload
         def modulesDir = new File(moduleDir, 'modules')
         def modulesExtDir = new File(modulesDir, 'ext')
+
+        project.delete(getCacheDir())
 
         def moduleJarName = netbeansExt().moduleName.replace('.', '-') + '.jar'
         project.copy { CopySpec it ->
