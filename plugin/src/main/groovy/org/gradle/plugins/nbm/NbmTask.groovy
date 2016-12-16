@@ -49,6 +49,26 @@ class NbmTask extends ConventionTask {
         makenbm.file = nbmFile
         makenbm.module = "modules" + File.separator + moduleJarName + ".jar"
 
+        File licenseFile = nbm.licenseFile
+        if (licenseFile != null) {
+            makenbm.createLicense().file = licenseFile
+        }
+
+        String moduleAuthor = nbm.moduleAuthor
+        if (moduleAuthor != null) {
+            makenbm.moduleauthor = moduleAuthor
+        }
+
+        String homePage = nbm.homePage
+        if (homePage != null) {
+            makenbm.homepage = homePage
+        }
+
+        Boolean needsRestart = nbm.needsRestart
+        if (needsRestart != null) {
+            makenbm.needsrestart = needsRestart.toString()
+        }
+
         NbmKeyStoreDef keyStore = nbm.keyStore
         def keyStoreFile = EvaluateUtils.asPath(keyStore.keyStoreFile)
         if (keyStoreFile != null) {
