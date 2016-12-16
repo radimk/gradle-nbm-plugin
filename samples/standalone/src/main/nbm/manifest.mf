@@ -1,3 +1,4 @@
 Manifest-Version: 1.0
 OpenIDE-Module-Localizing-Bundle: com/mycompany/standalone/Bundle.properties
 OpenIDE-Module-Module-Dependencies: org.netbeans.api.annotations.common/1 > 1.21.1, org.openide.util > 8.33.1, org.openide.awt > 7.59.1
+OpenIDE-Module-Layer: com/mycompany/standalone/layer.xml
