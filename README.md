@@ -31,7 +31,7 @@ NetBeans evangelist Geertjan Wielenga wrote a nice introductory post about [How 
 
 # TODOs
 
-* fix resource lookup when running annotation processors
+* fix resource lookup when running annotation processors - see [FAQ](https://github.com/radimk/gradle-nbm-plugin/wiki/FAQ)
 * possibly generate files from annotations into special directory to simplify merges
 * solve AUC generation
 * testing
