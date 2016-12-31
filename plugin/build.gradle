@@ -148,7 +148,3 @@ bintray {
 idea.module {
     testSourceDirs += file('src/integTest/groovy')
 }
-
-test {
-	systemProperty "xml.catalog.files", file('src/integTest/resources/catalog.xml')
-}
