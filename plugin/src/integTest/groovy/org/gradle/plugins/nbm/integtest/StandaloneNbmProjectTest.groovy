@@ -209,7 +209,7 @@ public class Service {
         Iterables.contains(moduleClasspath(moduleJar), 'ext/slf4j-api-1.7.2.jar')
     }
 
-	def "build with no cluster defined"() {
+    def "build with no cluster defined"() {
         buildFile << """
 apply plugin: 'java'
 apply plugin: org.gradle.plugins.nbm.NbmPlugin
@@ -220,7 +220,7 @@ nbm {
 """
         when:
         GradleProject project = runTasks(integTestDir, "nbm")
-		File module = new File(getIntegTestDir(), 'build/nbm/com-foo-acme.nbm')
+        File module = new File(getIntegTestDir(), 'build/nbm/com-foo-acme.nbm')
 		
         then:
         // TODO expect output file with all required entries
@@ -230,10 +230,10 @@ nbm {
         assertThat(new File(getIntegTestDir(), 'build/module/modules/com-foo-acme.jar'), FileMatchers.exists())
         assertThat(new File(getIntegTestDir(), 'build/module/update_tracking/com-foo-acme.xml'), FileMatchers.exists())	
         assertThat(module, FileMatchers.exists())
-		moduleXml(module, 'Info/info.xml').getProperty('@targetcluster').text().isEmpty()
-	}
+        moduleXml(module, 'Info/info.xml').getProperty('@targetcluster').text().isEmpty()
+    }
 	
-	def "build with cluster defined that is not called 'extra'"() {
+    def "build with cluster defined that is not called 'extra'"() {
         buildFile << """
 apply plugin: 'java'
 apply plugin: org.gradle.plugins.nbm.NbmPlugin
@@ -245,7 +245,7 @@ nbm {
 """
         when:
         GradleProject project = runTasks(integTestDir, "nbm")
-		File module = new File(getIntegTestDir(), 'build/nbm/com-foo-acme.nbm')
+        File module = new File(getIntegTestDir(), 'build/nbm/com-foo-acme.nbm')
 		
         then:
         // TODO expect output file with all required entries
@@ -255,10 +255,10 @@ nbm {
         assertThat(new File(getIntegTestDir(), 'build/module/modules/com-foo-acme.jar'), FileMatchers.exists())
         assertThat(new File(getIntegTestDir(), 'build/module/update_tracking/com-foo-acme.xml'), FileMatchers.exists())	
         assertThat(module, FileMatchers.exists())
-		moduleXml(module, 'Info/info.xml').getProperty('@targetcluster').text() == "myCluster"
-	}
+        moduleXml(module, 'Info/info.xml').getProperty('@targetcluster').text() == "myCluster"
+    }
 	
-	def "build with cluster defined that is called 'extra'"() {
+    def "build with cluster defined that is called 'extra'"() {
         buildFile << """
 apply plugin: 'java'
 apply plugin: org.gradle.plugins.nbm.NbmPlugin
@@ -270,7 +270,7 @@ nbm {
 """
         when:
         GradleProject project = runTasks(integTestDir, "nbm")
-		File module = new File(getIntegTestDir(), 'build/nbm/com-foo-acme.nbm')
+        File module = new File(getIntegTestDir(), 'build/nbm/com-foo-acme.nbm')
 		
         then:
         // TODO expect output file with all required entries
@@ -280,8 +280,8 @@ nbm {
         assertThat(new File(getIntegTestDir(), 'build/module/modules/com-foo-acme.jar'), FileMatchers.exists())
         assertThat(new File(getIntegTestDir(), 'build/module/update_tracking/com-foo-acme.xml'), FileMatchers.exists())	
         assertThat(module, FileMatchers.exists())
-		moduleXml(module, 'Info/info.xml').getProperty('@targetcluster').text().isEmpty()
-	}
+        moduleXml(module, 'Info/info.xml').getProperty('@targetcluster').text().isEmpty()
+    }
 	
     private Iterable<String> moduleDependencies(File jarFile) {
         JarFile jar = new JarFile(jarFile)
@@ -309,13 +309,11 @@ nbm {
         props
     }
 	
-
-	
-	private GPathResult moduleXml(File jarFile, String resourceName) {
-		new JarFile(jarFile).withCloseable { jar ->
-			jar.getInputStream(jar.getEntry(resourceName)).withCloseable { is ->
-				return new XmlSlurper(new ResolvingXMLReader(cm)).parse(is)
-			}
-		}
-	}
+    private GPathResult moduleXml(File jarFile, String resourceName) {
+        new JarFile(jarFile).withCloseable { jar ->
+            jar.getInputStream(jar.getEntry(resourceName)).withCloseable { is ->
+                return new XmlSlurper(new ResolvingXMLReader(cm)).parse(is)
+            }
+        }
+    }
 }
