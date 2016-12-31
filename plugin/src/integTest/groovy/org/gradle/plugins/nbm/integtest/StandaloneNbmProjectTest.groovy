@@ -1,11 +1,15 @@
 package org.gradle.plugins.nbm.integtest
+
 import com.google.common.base.Splitter
 import com.google.common.collect.Iterables
 import com.google.common.io.Files
+import groovy.util.slurpersupport.GPathResult
 import org.gradle.tooling.model.GradleProject
 
 import java.util.jar.Attributes
 import java.util.jar.JarFile
+import org.apache.xml.resolver.CatalogManager
+import org.apache.xml.resolver.tools.ResolvingXMLReader
 
 import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.not
@@ -205,6 +209,80 @@ public class Service {
         Iterables.contains(moduleClasspath(moduleJar), 'ext/slf4j-api-1.7.2.jar')
     }
 
+	def "build with no cluster defined"() {
+        buildFile << """
+apply plugin: 'java'
+apply plugin: org.gradle.plugins.nbm.NbmPlugin
+
+nbm {
+  moduleName = 'com.foo.acme'
+}
+"""
+        when:
+        GradleProject project = runTasks(integTestDir, "nbm")
+		File module = new File(getIntegTestDir(), 'build/nbm/com-foo-acme.nbm')
+		
+        then:
+        // TODO expect output file with all required entries
+        project != null
+        project.tasks.find { it.name == 'nbm'} != null
+        assertThat(new File(getIntegTestDir(), 'build/module/config/Modules/com-foo-acme.xml'), FileMatchers.exists())
+        assertThat(new File(getIntegTestDir(), 'build/module/modules/com-foo-acme.jar'), FileMatchers.exists())
+        assertThat(new File(getIntegTestDir(), 'build/module/update_tracking/com-foo-acme.xml'), FileMatchers.exists())	
+        assertThat(module, FileMatchers.exists())
+		moduleXml(module, 'Info/info.xml').getProperty('@targetcluster').text().isEmpty()
+	}
+	
+	def "build with cluster defined that is not called 'extra'"() {
+        buildFile << """
+apply plugin: 'java'
+apply plugin: org.gradle.plugins.nbm.NbmPlugin
+
+nbm {
+  cluster = 'myCluster'
+  moduleName = 'com.foo.acme'
+}
+"""
+        when:
+        GradleProject project = runTasks(integTestDir, "nbm")
+		File module = new File(getIntegTestDir(), 'build/nbm/com-foo-acme.nbm')
+		
+        then:
+        // TODO expect output file with all required entries
+        project != null
+        project.tasks.find { it.name == 'nbm'} != null
+        assertThat(new File(getIntegTestDir(), 'build/module/config/Modules/com-foo-acme.xml'), FileMatchers.exists())
+        assertThat(new File(getIntegTestDir(), 'build/module/modules/com-foo-acme.jar'), FileMatchers.exists())
+        assertThat(new File(getIntegTestDir(), 'build/module/update_tracking/com-foo-acme.xml'), FileMatchers.exists())	
+        assertThat(module, FileMatchers.exists())
+		moduleXml(module, 'Info/info.xml').getProperty('@targetcluster').text() == "myCluster"
+	}
+	
+	def "build with cluster defined that is called 'extra'"() {
+        buildFile << """
+apply plugin: 'java'
+apply plugin: org.gradle.plugins.nbm.NbmPlugin
+
+nbm {
+  cluster = 'extra'
+  moduleName = 'com.foo.acme'
+}
+"""
+        when:
+        GradleProject project = runTasks(integTestDir, "nbm")
+		File module = new File(getIntegTestDir(), 'build/nbm/com-foo-acme.nbm')
+		
+        then:
+        // TODO expect output file with all required entries
+        project != null
+        project.tasks.find { it.name == 'nbm'} != null
+        assertThat(new File(getIntegTestDir(), 'build/module/config/Modules/com-foo-acme.xml'), FileMatchers.exists())
+        assertThat(new File(getIntegTestDir(), 'build/module/modules/com-foo-acme.jar'), FileMatchers.exists())
+        assertThat(new File(getIntegTestDir(), 'build/module/update_tracking/com-foo-acme.xml'), FileMatchers.exists())	
+        assertThat(module, FileMatchers.exists())
+		moduleXml(module, 'Info/info.xml').getProperty('@targetcluster').text().isEmpty()
+	}
+	
     private Iterable<String> moduleDependencies(File jarFile) {
         JarFile jar = new JarFile(jarFile)
         def attrs = jar.manifest?.mainAttributes
@@ -230,4 +308,14 @@ public class Service {
         jar.close()
         props
     }
+	
+
+	
+	private GPathResult moduleXml(File jarFile, String resourceName) {
+		new JarFile(jarFile).withCloseable { jar ->
+			jar.getInputStream(jar.getEntry(resourceName)).withCloseable { is ->
+				return new XmlSlurper(new ResolvingXMLReader(cm)).parse(is)
+			}
+		}
+	}
 }

@@ -58,6 +58,7 @@ dependencies {
   testCompile "junit:junit:4.11"
   testCompile "org.hamcrest:hamcrest-library:1.3"
   testCompile "com.google.guava:guava:14.0.1"
+  testCompile group: 'xml-resolver', name: 'xml-resolver', version: '1.2'
 }
 repositories {
     mavenCentral()
@@ -75,6 +76,8 @@ sourceSets {
     }
 }
 
+def catalogPath = file('src/integTest/resources/catalog.xml').canonicalPath
+
 task integTest(type: Test) {
     description = 'Runs the integration tests.'
     group = 'verification'
@@ -84,6 +87,9 @@ task integTest(type: Test) {
     reports.html.destination = file("${project.reporting.baseDir}/$name")
 
     shouldRunAfter test
+
+	systemProperty "xml.catalog.files", catalogPath
+
 }
 
 task testJenkins(dependsOn: test) {
@@ -141,4 +147,8 @@ bintray {
 
 idea.module {
     testSourceDirs += file('src/integTest/groovy')
+}
+
+test {
+	systemProperty "xml.catalog.files", file('src/integTest/resources/catalog.xml')
 }
