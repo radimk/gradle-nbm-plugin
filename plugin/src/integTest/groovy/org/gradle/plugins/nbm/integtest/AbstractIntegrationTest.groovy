@@ -33,7 +33,7 @@ abstract class AbstractIntegrationTest extends Specification {
     File integTestDir
     File buildFile
     File gradlePropsFile
-	CatalogManager cm 
+    CatalogManager cm 
 	
     def setup() {
         integTestDir = new File('build/integTest')
@@ -69,9 +69,9 @@ repositories {
         settingsFile << ''
 
         gradlePropsFile = createNewFile(integTestDir, 'gradle.properties')
-		
-		cm = new CatalogManager()
-		cm.setVerbosity(9)
+        
+        cm = new CatalogManager()
+        cm.setVerbosity(9)
     }
 
     protected File createNewDir(File parent, String dirname) {

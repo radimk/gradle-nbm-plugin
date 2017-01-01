@@ -88,7 +88,7 @@ task integTest(type: Test) {
 
     shouldRunAfter test
 
-	systemProperty "xml.catalog.files", catalogPath
+    systemProperty "xml.catalog.files", catalogPath
 
 }
 

@@ -12,13 +12,13 @@ public class FileMatchers {
         return new TypeSafeMatcher<File>() {
             File fileTested;
 
-			@Override
+            @Override
             public boolean matchesSafely(File item) {
                 fileTested = item;
                 return item.exists();
             }
 
-			@Override
+            @Override
             public void describeTo(Description description) {
                 description.appendText(" that file ");
                 description.appendValue(fileTested);
@@ -31,13 +31,13 @@ public class FileMatchers {
         return new TypeSafeMatcher<File>() {
             File fileTested;
 
-			@Override
+            @Override
             public boolean matchesSafely(File item) {
                 fileTested = item;
                 return item.isFile();
             }
 
-			@Override
+            @Override
             public void describeTo(Description description) {
                 description.appendText(" that ");
                 description.appendValue(fileTested);
@@ -46,6 +46,6 @@ public class FileMatchers {
         };
     }
 
-	private FileMatchers() {
-	}
+    private FileMatchers() {
+    }
 }
