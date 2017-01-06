@@ -22,6 +22,7 @@ import org.gradle.tooling.model.GradleProject
 import spock.lang.Specification
 
 import static org.spockframework.util.Assert.fail
+import org.apache.xml.resolver.CatalogManager
 
 /**
  * Abstract integration test using Gradle's tooling API.
@@ -32,7 +33,8 @@ abstract class AbstractIntegrationTest extends Specification {
     File integTestDir
     File buildFile
     File gradlePropsFile
-
+    CatalogManager cm 
+	
     def setup() {
         integTestDir = new File('build/integTest')
 
@@ -67,6 +69,9 @@ repositories {
         settingsFile << ''
 
         gradlePropsFile = createNewFile(integTestDir, 'gradle.properties')
+        
+        cm = new CatalogManager()
+        cm.setVerbosity(9)
     }
 
     protected File createNewDir(File parent, String dirname) {

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE catalog PUBLIC "-//OASIS//DTD Entity Resolution XML Catalog V1.0//EN"
+         "http://www.oasis-open.org/committees/entity/release/1.0/catalog.dtd">
+
+<catalog xmlns="urn:oasis:names:tc:entity:xmlns:xml:catalog">                
+
+	<public publicId="-//NetBeans//DTD Autoupdate Module Info 2.4//EN" uri="autoupdate-info-2_4.dtd"/>
+	<system systemId="http://www.netbeans.org/dtds/autoupdate-info-2_3.dtd" uri="autoupdate-info-2_4.dtd"/>
+
+</catalog>
