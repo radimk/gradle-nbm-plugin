@@ -1,11 +1,13 @@
 package org.gradle.plugins.nbm;
 
+import org.gradle.api.tasks.SourceSet;
+
 import java.io.File;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 import java.util.regex.Pattern;
-import org.gradle.api.tasks.SourceSet;
 
 public final class NbmFriendPackages {
     private final List<PackageNameGenerator> packageList;
@@ -83,6 +85,22 @@ public final class NbmFriendPackages {
             currentNames.findPackages(result);
         }
         return result;
+    }
+
+    public List<String> getPackageListPattern() {
+        List<String> packages = getPackageList();
+        List<String> result = new ArrayList<>(packages.size());
+        for (String packageName: packages) {
+            result.add(toStarImport(packageName));
+        }
+        return result;
+    }
+
+    private static String toStarImport(String packageName) {
+        String suffix = ".*";
+        return packageName.endsWith(suffix)
+                ? packageName
+                : packageName + suffix;
     }
 
     private interface PackageNameGenerator {

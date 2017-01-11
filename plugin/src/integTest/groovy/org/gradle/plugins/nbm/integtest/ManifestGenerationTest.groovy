@@ -74,6 +74,124 @@ nbm {
         assert manifest.containsKey('OpenIDE-Module-Build-Version')
     }
 
+    def "friend packages are added to manifest for sub packages"() {
+        // Set the moduleName because I have no idea what the project's name is,
+        // so can't rely on the default value for that
+        buildFile << """
+apply plugin: org.gradle.plugins.nbm.NbmPlugin
+version = '3.5.6'
+nbm {
+  moduleName = 'my-test-project'
+  implementationVersion = version
+
+  friendPackages {
+    addWithSubPackages(sourceSets.main, 'rootpckg.mypckg')
+  }
+}
+"""
+
+        setupDefaultSources()
+
+        when:
+        GradleProject project = runTasks(integTestDir, "generateModuleManifest")
+
+        then:
+        def manifest = checkDefaultModuleManifest(project)
+        assert manifest.get('OpenIDE-Module-Public-Packages') == 'rootpckg.mypckg.subpckg.*, rootpckg.mypckg.subpckg3.*'
+    }
+
+    def "friend packages are added to manifest for sub packages of root"() {
+        // Set the moduleName because I have no idea what the project's name is,
+        // so can't rely on the default value for that
+        buildFile << """
+apply plugin: org.gradle.plugins.nbm.NbmPlugin
+version = '3.5.6'
+nbm {
+  moduleName = 'my-test-project'
+  implementationVersion = version
+
+  friendPackages {
+    addWithSubPackages(sourceSets.main, 'rootpckg')
+  }
+}
+"""
+
+        setupDefaultSources()
+
+        when:
+        GradleProject project = runTasks(integTestDir, "generateModuleManifest")
+
+        then:
+        def manifest = checkDefaultModuleManifest(project)
+        assert manifest.get('OpenIDE-Module-Public-Packages') == 'rootpckg.mypckg.subpckg.*, rootpckg.mypckg.subpckg3.*'
+    }
+
+    def "friend packages are added explicitly"() {
+        // Set the moduleName because I have no idea what the project's name is,
+        // so can't rely on the default value for that
+        buildFile << """
+apply plugin: org.gradle.plugins.nbm.NbmPlugin
+version = '3.5.6'
+nbm {
+  moduleName = 'my-test-project'
+  implementationVersion = version
+
+  friendPackages {
+    add 'rootpckg.mypckg'
+    add 'rootpckg.mypckg.subpckg'
+  }
+}
+"""
+
+        setupDefaultSources()
+
+        when:
+        GradleProject project = runTasks(integTestDir, "generateModuleManifest")
+
+        then:
+        def manifest = checkDefaultModuleManifest(project)
+        assert manifest.get('OpenIDE-Module-Public-Packages') == 'rootpckg.mypckg.*, rootpckg.mypckg.subpckg.*'
+    }
+
+    def "friend packages are added explicitly with starts"() {
+        // Set the moduleName because I have no idea what the project's name is,
+        // so can't rely on the default value for that
+        buildFile << """
+apply plugin: org.gradle.plugins.nbm.NbmPlugin
+version = '3.5.6'
+nbm {
+  moduleName = 'my-test-project'
+  implementationVersion = version
+
+  friendPackages {
+    add 'rootpckg.mypckg.*'
+    add 'rootpckg.mypckg.subpckg.*'
+  }
+}
+"""
+
+        setupDefaultSources()
+
+        when:
+        GradleProject project = runTasks(integTestDir, "generateModuleManifest")
+
+        then:
+        def manifest = checkDefaultModuleManifest(project)
+        assert manifest.get('OpenIDE-Module-Public-Packages') == 'rootpckg.mypckg.*, rootpckg.mypckg.subpckg.*'
+    }
+
+    def setupDefaultSources() {
+        createProjectFile('src', 'main', 'java', 'rootpckg', 'mypckg', 'subpckg', 'A.java') << """
+package rootpckg.mypckg.subpckg;
+public class A { }
+"""
+        createProjectDir('src', 'main', 'java', 'rootpckg', 'mypckg', 'subpckg2')
+        createProjectFile('src', 'main', 'java', 'rootpckg', 'mypckg', 'subpckg3', 'B.java') << """
+package rootpckg.mypckg.subpckg3;
+public class B { }
+"""
+    }
+
     def checkDefaultModuleManifest(GradleProject project) {
         def manifest = getGeneratedModuleManifest(project)
 
