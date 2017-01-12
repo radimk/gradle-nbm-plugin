@@ -33,8 +33,8 @@ abstract class AbstractIntegrationTest extends Specification {
     File integTestDir
     File buildFile
     File gradlePropsFile
-    CatalogManager cm 
-	
+    CatalogManager cm
+
     def setup() {
         integTestDir = new File('build/integTest')
 
@@ -69,25 +69,54 @@ repositories {
         settingsFile << ''
 
         gradlePropsFile = createNewFile(integTestDir, 'gradle.properties')
-        
+
         cm = new CatalogManager()
         cm.setVerbosity(9)
     }
 
     protected File createNewDir(File parent, String dirname) {
         File dir = new File(parent, dirname)
-
-        if(!dir.exists()) {
-            if(!dir.mkdirs()) {
-                fail("Unable to create new test directory $dir.canonicalPath.")
-            }
-        }
-
+        ensureDirectory(dir)
         dir
     }
 
     protected File createNewFile(File parent, String filename) {
         File file = new File(parent, filename)
+
+        if(!file.exists()) {
+            if(!file.createNewFile()) {
+                fail("Unable to create new test file $file.canonicalPath.")
+            }
+        }
+
+        file
+    }
+
+    private static void ensureDirectory(File dir) {
+        if(!dir.exists()) {
+            if(!dir.mkdirs()) {
+                fail("Unable to create new test directory $dir.canonicalPath.")
+            }
+        }
+    }
+
+    private static File subPath(File root, String... childParts) {
+        File file = root
+        for (String part: childParts) {
+            file = new File(file, part)
+        }
+        file
+    }
+
+    protected File createProjectDir(String... pathParts) {
+        File dir = subPath(integTestDir, pathParts)
+        ensureDirectory(dir)
+        dir
+    }
+
+    protected File createProjectFile(String... pathParts) {
+        File file = subPath(integTestDir, pathParts)
+        ensureDirectory(file.parentFile)
 
         if(!file.exists()) {
             if(!file.createNewFile()) {
