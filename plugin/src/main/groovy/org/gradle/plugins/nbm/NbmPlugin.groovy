@@ -20,7 +20,7 @@ import java.util.concurrent.Callable
 public class NbmPlugin implements Plugin<Project> {
     public static final String PROVIDED_COMPILE_CONFIGURATION_NAME = "providedCompile";
     public static final String PROVIDED_RUNTIME_CONFIGURATION_NAME = "providedRuntime";
-    public static final String IMPLEMENTATION_CONFIGURATION_NAME = "implementation";
+    public static final String IMPLEMENTATION_CONFIGURATION_NAME = "nbimplementation";
     public static final String BUNDLE_CONFIGURATION_NAME = "bundle";
 
     private static final String NBM_TASK = 'nbm'

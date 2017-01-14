@@ -67,7 +67,7 @@ class ModuleManifestTask extends ConventionTask {
         def compileConfig = project.configurations.findByName(mainSourceSet.compileConfigurationName).resolvedConfiguration
 
         HashSet<ResolvedArtifact> implArtifacts = new HashSet<>()
-        project.configurations.implementation.resolvedConfiguration.firstLevelModuleDependencies.each { ResolvedDependency it ->
+        project.configurations.nbimplementation.resolvedConfiguration.firstLevelModuleDependencies.each { ResolvedDependency it ->
             implArtifacts.addAll(it.moduleArtifacts)
         }
 
