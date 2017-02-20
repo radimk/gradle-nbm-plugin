@@ -37,7 +37,8 @@ class ManifestGenerationTest extends AbstractIntegrationTest {
     def "check default generated manifest file"() {
         // Set the moduleName because I have no idea what the project's name is,
         // so can't rely on the default value for that
-        buildFile << """
+        buildFile << \
+"""
 apply plugin: org.gradle.plugins.nbm.NbmPlugin\n\
 version = '3.5.6'
 nbm {
@@ -57,7 +58,8 @@ nbm {
     def "manifest file with implementation version"() {
         // Set the moduleName because I have no idea what the project's name is,
         // so can't rely on the default value for that
-        buildFile << """
+        buildFile << \
+"""
 apply plugin: org.gradle.plugins.nbm.NbmPlugin\n\
 version = '3.5.6'
 nbm {
@@ -77,7 +79,8 @@ nbm {
     def "friend packages are added to manifest for sub packages"() {
         // Set the moduleName because I have no idea what the project's name is,
         // so can't rely on the default value for that
-        buildFile << """
+        buildFile << \
+"""
 apply plugin: org.gradle.plugins.nbm.NbmPlugin
 version = '3.5.6'
 nbm {
@@ -103,7 +106,8 @@ nbm {
     def "friend packages are added to manifest for sub packages of root"() {
         // Set the moduleName because I have no idea what the project's name is,
         // so can't rely on the default value for that
-        buildFile << """
+        buildFile << \
+"""
 apply plugin: org.gradle.plugins.nbm.NbmPlugin
 version = '3.5.6'
 nbm {
@@ -129,7 +133,8 @@ nbm {
     def "friend packages are added explicitly"() {
         // Set the moduleName because I have no idea what the project's name is,
         // so can't rely on the default value for that
-        buildFile << """
+        buildFile << \
+"""
 apply plugin: org.gradle.plugins.nbm.NbmPlugin
 version = '3.5.6'
 nbm {
@@ -156,7 +161,8 @@ nbm {
     def "friend packages are added explicitly with starts"() {
         // Set the moduleName because I have no idea what the project's name is,
         // so can't rely on the default value for that
-        buildFile << """
+        buildFile << \
+"""
 apply plugin: org.gradle.plugins.nbm.NbmPlugin
 version = '3.5.6'
 nbm {
@@ -181,12 +187,14 @@ nbm {
     }
 
     def setupDefaultSources() {
-        createProjectFile('src', 'main', 'java', 'rootpckg', 'mypckg', 'subpckg', 'A.java') << """
+        createProjectFile('src', 'main', 'java', 'rootpckg', 'mypckg', 'subpckg', 'A.java') << \
+"""
 package rootpckg.mypckg.subpckg;
 public class A { }
 """
         createProjectDir('src', 'main', 'java', 'rootpckg', 'mypckg', 'subpckg2')
-        createProjectFile('src', 'main', 'java', 'rootpckg', 'mypckg', 'subpckg3', 'B.java') << """
+        createProjectFile('src', 'main', 'java', 'rootpckg', 'mypckg', 'subpckg3', 'B.java') << \
+"""
 package rootpckg.mypckg.subpckg3;
 public class B { }
 """
