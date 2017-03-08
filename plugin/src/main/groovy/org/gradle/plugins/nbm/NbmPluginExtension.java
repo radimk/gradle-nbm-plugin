@@ -33,6 +33,7 @@ public final class NbmPluginExtension {
     private String javaDependency;
     private boolean autoupdateShowInClient;
     private final Configuration harnessConfiguration;
+    private String classpathExtFolder;
     private final String buildDate;
 
     public NbmPluginExtension(Project project) {
@@ -57,6 +58,7 @@ public final class NbmPluginExtension {
         this.friendPackages = new NbmFriendPackages();
         this.keyStore = new NbmKeyStoreDef();
         this.requires = new LinkedList<>();
+        this.classpathExtFolder = null;
         this.autoupdateShowInClient = true;
         
         // Initializse default values
@@ -234,4 +236,11 @@ public final class NbmPluginExtension {
         this.autoupdateShowInClient = autoupdateShowInClient;
     }
 
+    public String getClasspathExtFolder() {
+        return classpathExtFolder;
+    }
+
+    public void setClasspathExtFolder(String classpathExtFolder) {
+        this.classpathExtFolder = classpathExtFolder;
+    }
 }

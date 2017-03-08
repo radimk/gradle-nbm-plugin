@@ -190,8 +190,9 @@ class ModuleManifestTask extends ConventionTask {
     }
 
     private String computeClasspath() {
-        FileCollection classpath = project.tasks.findByPath('netbeans').classpath
         def jarNames = [] as Set
+        FileCollection classpath = project.tasks.findByPath('netbeans').classpath
+        String classpathExtFolder = netbeansExt().classpathExtFolder
         classpath.asFileTree.visit { FileVisitDetails fvd ->
             if (fvd.directory) return
             if (!fvd.name.endsWith('jar')) return
@@ -202,7 +203,7 @@ class ModuleManifestTask extends ConventionTask {
             if (attrValue != null) return
 
             // JAR but not NetBeans module
-            jarNames += 'ext/' + fvd.name
+            jarNames += 'ext/'+ (classpathExtFolder ? "$classpathExtFolder/" : "") + fvd.name
         }
         jarNames.join(' ')
     }

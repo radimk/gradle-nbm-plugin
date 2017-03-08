@@ -76,7 +76,9 @@ class NetBeansTask extends ConventionTask {
         }
         // TODO handle eager/autoload
         def modulesDir = new File(moduleDir, 'modules')
-        def modulesExtDir = new File(modulesDir, 'ext')
+        
+        def classpathExtFolder = netbeansExt().classpathExtFolder
+        def modulesExtDir = new File(modulesDir, 'ext' + (classpathExtFolder ? "/$classpathExtFolder" : ""))
 
         project.delete(getCacheDir())
 
@@ -86,6 +88,7 @@ class NetBeansTask extends ConventionTask {
             it.into(modulesDir)
             it.rename('.*\\.jar', moduleJarName)
         }
+
         project.copy { CopySpec it ->
             it.from(classpath)
             it.into(modulesExtDir)

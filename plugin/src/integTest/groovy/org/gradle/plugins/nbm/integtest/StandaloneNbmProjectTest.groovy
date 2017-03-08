@@ -219,6 +219,49 @@ public class Service {
 
         Iterables.contains(moduleClasspath(moduleJar), 'ext/slf4j-api-1.7.2.jar')
     }
+    
+    def "build with extra JAR in classpathExtFolder"() {
+        buildFile << \
+"""
+apply plugin: 'java'
+apply plugin: org.gradle.plugins.nbm.NbmPlugin
+
+nbm {
+  moduleName = 'com.foo.acme'\n\
+  classpathExtFolder = 'acme'
+}
+dependencies {
+  compile 'org.netbeans.api:org-openide-util:RELEASE74'
+  compile 'org.slf4j:slf4j-api:1.7.2'
+}
+"""
+        def srcDir = createNewDir(integTestDir, 'src/main/java/com/mycompany/standalone')
+        createNewFile(srcDir, 'Service.java') << \
+"""
+package com.mycompany.standalone;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+public class Service {
+  public Service () {
+    Logger logger = LoggerFactory.getLogger(Service.class);
+  }
+}
+"""
+
+        when:
+        GradleProject project = runTasks(integTestDir, "netbeans")
+        def moduleJar = new File(getIntegTestDir(), 'build/module/modules/com-foo-acme.jar')
+
+        then:
+        project != null
+        project.tasks.find { it.name == 'nbm'} != null
+        assertThat(moduleJar, FileMatchers.exists())
+        assertThat(new File(getIntegTestDir(), 'build/module/modules/ext/acme/slf4j-api-1.7.2.jar'), FileMatchers.exists())
+        assertThat(new File(getIntegTestDir(), 'build/module/modules/ext/acme/org-openide-util-lookup-RELEASE74.jar'), not(FileMatchers.exists()))
+        assertThat(new File(getIntegTestDir(), 'build/module/modules/ext/org-openide-util-lookup-RELEASE74.jar'), not(FileMatchers.exists()))
+
+        Iterables.contains(moduleClasspath(moduleJar), 'ext/acme/slf4j-api-1.7.2.jar')
+    }
 
     def "build with no cluster defined"() {
         buildFile << \
