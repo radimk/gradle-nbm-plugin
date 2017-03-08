@@ -150,6 +150,9 @@ class ModuleManifestTask extends ConventionTask {
             result.put('OpenIDE-Module-Layer', layer)
         }
 
+        println netbeansExt().autoupdateShowInClient
+        result.put('AutoUpdate-Show-In-Client', String.valueOf(netbeansExt().autoupdateShowInClient))
+        
         def moduleInstall = netbeansExt().moduleInstall
         if (moduleInstall) {
             result.put('OpenIDE-Module-Install', moduleInstall.replace('.', '/') + '.class')

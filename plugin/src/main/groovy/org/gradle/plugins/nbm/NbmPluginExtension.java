@@ -28,6 +28,7 @@ public final class NbmPluginExtension {
     private String homePage;
     private Boolean needsRestart;
     private String layer;
+    private boolean autoupdateShowInClient;
     private final Configuration harnessConfiguration;
 
     public NbmPluginExtension(Project project) {
@@ -52,6 +53,7 @@ public final class NbmPluginExtension {
         this.friendPackages = new NbmFriendPackages();
         this.keyStore = new NbmKeyStoreDef();
         this.requires = new LinkedList<>();
+        this.autoupdateShowInClient = true;
     }
 
     public NbmFriendPackages getFriendPackages() {
@@ -202,6 +204,14 @@ public final class NbmPluginExtension {
 
     public void setLayer(String layer) {
         this.layer = layer;
+    }
+
+    public boolean getAutoupdateShowInClient() {
+        return autoupdateShowInClient;
+    }
+
+    public void setAutoupdateShowInClient(boolean autoupdateShowInClient) {
+        this.autoupdateShowInClient = autoupdateShowInClient;
     }
 
 }

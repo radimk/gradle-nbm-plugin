@@ -78,6 +78,31 @@ nbm {
         then: "Entry 'OpenIDE-Module-Layer' exists in manifest with correct value."
         assert 'rootpckg/mypckg/subpckg/layer.xml' == manifest.get('OpenIDE-Module-Layer')
     }
+
+    def "manifest file with autoupdateShowInClient"() {
+
+        given: "Build file with configured nbm plugin"
+        // Set the moduleName because I have no idea what the project's name is,
+        // so can't rely on the default value for that
+        buildFile << \
+"""
+apply plugin: org.gradle.plugins.nbm.NbmPlugin\n\
+version = '3.5.6'
+nbm {
+  moduleName = 'my-test-project'\n\
+  autoupdateShowInClient = false
+}
+"""
+        when: "Generate netbeans module manifest"
+        GradleProject project = runTasks(integTestDir, "generateModuleManifest")
+
+        then: "Default manifest entries exist with correct values."
+        def manifest = checkDefaultModuleManifest(project)
+
+        then: "Entry 'AutoUpdate-Show-In-Client' exist in manifest with correct value."
+        assert 'false' == manifest.get('AutoUpdate-Show-In-Client')
+    }
+
     def "manifest file with implementation version"() {
         // Set the moduleName because I have no idea what the project's name is,
         // so can't rely on the default value for that
