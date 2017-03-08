@@ -74,7 +74,7 @@ class NetBeansTask extends ConventionTask {
         } else {
             timestamp.createNewFile()
         }
-        // TODO handle eager/autoload
+        
         def modulesDir = new File(moduleDir, 'modules')
         
         def classpathExtFolder = netbeansExt().classpathExtFolder
@@ -109,7 +109,15 @@ class NetBeansTask extends ConventionTask {
         FileSet moduleFileSet = new FileSet()
         moduleFileSet.setDir(moduleDir)
         moduleFileSet.setIncludes('modules' + File.separator + moduleJarName)
-        moduleXmlTask.addEnabled(moduleFileSet)
+        
+        if(netbeansExt().isAutoload()) {
+            moduleXmlTask.addAutoload(moduleFileSet)
+        }else if(netbeansExt().isEager()) {
+            moduleXmlTask.addEager(moduleFileSet)
+        }else {
+            moduleXmlTask.addEnabled(moduleFileSet)
+        }
+        
         moduleXmlTask.execute()
 
         def nbTask = antBuilder.antProject.createTask('genlist')

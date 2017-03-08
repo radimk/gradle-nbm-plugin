@@ -286,6 +286,12 @@ nbm {
         assertThat(new File(getIntegTestDir(), 'build/module/update_tracking/com-foo-acme.xml'), FileMatchers.exists())	
         assertThat(module, FileMatchers.exists())
         moduleXml(module, 'Info/info.xml').getProperty('@targetcluster').text().isEmpty()
+        
+        def moduleXml = moduleXml(module, 'netbeans/config/Modules/com-foo-acme.xml')
+        assert !moduleXml.param.find{it.@name == 'autoload'}.toBoolean()
+        assert !moduleXml.param.find{it.@name == 'eager'}.toBoolean()
+        assert moduleXml.param.find{it.@name == 'enabled'}.toBoolean()
+        
     }
 	
     def "build with cluster defined that is not called 'extra'"() {
@@ -339,7 +345,58 @@ nbm {
         assertThat(module, FileMatchers.exists())
         moduleXml(module, 'Info/info.xml').getProperty('@targetcluster').text().isEmpty()
     }
-	
+    
+    def "build autoload module"() {
+        buildFile << \
+"""
+apply plugin: 'java'
+apply plugin: org.gradle.plugins.nbm.NbmPlugin
+
+nbm {
+  moduleName = 'com.foo.acme'\n\
+  autoload = 'true'
+}
+"""
+        when:
+        GradleProject project = runTasks(integTestDir, "nbm")
+        File module = new File(getIntegTestDir(), 'build/nbm/com-foo-acme.nbm')
+		
+        then:
+        project != null
+        project.tasks.find { it.name == 'nbm'} != null
+        assertThat(new File(getIntegTestDir(), 'build/module/config/Modules/com-foo-acme.xml'), FileMatchers.exists())
+        def moduleXml = moduleXml(module, 'netbeans/config/Modules/com-foo-acme.xml')
+        assert moduleXml.param.find{it.@name == 'autoload'}.toBoolean()
+        assert !moduleXml.param.find{it.@name == 'eager'}.toBoolean()
+        assert !moduleXml.param.find{it.@name == 'enabled'}.toBoolean()
+    }
+    
+        def "build eager module"() {
+        buildFile << \
+"""
+apply plugin: 'java'
+apply plugin: org.gradle.plugins.nbm.NbmPlugin
+
+nbm {
+  moduleName = 'com.foo.acme'\n\
+  eager = 'true'
+}
+"""
+        when:
+        GradleProject project = runTasks(integTestDir, "nbm")
+        File module = new File(getIntegTestDir(), 'build/nbm/com-foo-acme.nbm')
+		
+        then:
+        project != null
+        project.tasks.find { it.name == 'nbm'} != null
+        assertThat(new File(getIntegTestDir(), 'build/module/config/Modules/com-foo-acme.xml'), FileMatchers.exists())
+        def moduleXml = moduleXml(module, 'netbeans/config/Modules/com-foo-acme.xml')
+        
+        assert !moduleXml.param.find{it.@name == 'autoload'}.toBoolean()
+        assert moduleXml.param.find{it.@name == 'eager'}.toBoolean()
+        assert !moduleXml.param.find{it.@name == 'enabled'}.toBoolean()
+    }
+    
     private Iterable<String> moduleDependencies(File jarFile) {
         JarFile jar = new JarFile(jarFile)
         def attrs = jar.manifest?.mainAttributes
