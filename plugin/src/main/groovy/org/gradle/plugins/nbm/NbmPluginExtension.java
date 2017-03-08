@@ -28,6 +28,7 @@ public final class NbmPluginExtension {
     private String homePage;
     private Boolean needsRestart;
     private String layer;
+    private String javaDependency;
     private boolean autoupdateShowInClient;
     private final Configuration harnessConfiguration;
 
@@ -204,6 +205,14 @@ public final class NbmPluginExtension {
 
     public void setLayer(String layer) {
         this.layer = layer;
+    }
+
+    public String getJavaDependency() {
+        return javaDependency;
+    }
+
+    public void setJavaDependency(String javaDependency) {
+        this.javaDependency = javaDependency;
     }
 
     public boolean getAutoupdateShowInClient() {

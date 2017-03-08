@@ -79,6 +79,30 @@ nbm {
         assert 'rootpckg/mypckg/subpckg/layer.xml' == manifest.get('OpenIDE-Module-Layer')
     }
 
+    def "manifest file with java dependency"() {
+
+        given: "Build file with configured nbm plugin"
+        // Set the moduleName because I have no idea what the project's name is,
+        // so can't rely on the default value for that
+        buildFile << \
+"""
+apply plugin: org.gradle.plugins.nbm.NbmPlugin\n\
+version = '3.5.6'
+nbm {
+  moduleName = 'my-test-project'
+  javaDependency = 'Java > 1.8'
+}
+"""
+        when: "Generate netbeans module manifest"
+        GradleProject project = runTasks(integTestDir, "generateModuleManifest")
+
+        then: "Default manifest entries exist with correct values."
+        def manifest = checkDefaultModuleManifest(project)
+
+        then: "Entry 'OpenIDE-Module-Java-Dependencies' exists in manifest with correct value."
+        assert manifest.get('OpenIDE-Module-Java-Dependencies') == 'Java > 1.8'
+    }
+    
     def "manifest file with autoupdateShowInClient"() {
 
         given: "Build file with configured nbm plugin"
