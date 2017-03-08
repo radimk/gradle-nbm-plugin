@@ -5,6 +5,8 @@ import org.gradle.api.Project;
 import org.gradle.api.artifacts.Configuration;
 
 import java.io.File;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
@@ -31,6 +33,7 @@ public final class NbmPluginExtension {
     private String javaDependency;
     private boolean autoupdateShowInClient;
     private final Configuration harnessConfiguration;
+    private final String buildDate;
 
     public NbmPluginExtension(Project project) {
         Objects.requireNonNull(project, "project");
@@ -55,6 +58,14 @@ public final class NbmPluginExtension {
         this.keyStore = new NbmKeyStoreDef();
         this.requires = new LinkedList<>();
         this.autoupdateShowInClient = true;
+        
+        // Initializse default values
+        this.buildDate = new SimpleDateFormat("yyyyMMddHHmm").format(new Date(System.currentTimeMillis()));
+        requires("org.openide.modules.ModuleFormat1");
+    }
+
+    public String getBuildDate() {
+        return buildDate;
     }
 
     public NbmFriendPackages getFriendPackages() {
