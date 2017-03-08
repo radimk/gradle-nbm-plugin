@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Objects;
 
 public final class NbmPluginExtension {
+
     private String moduleName;
     private String cluster;
     private String specificationVersion;
@@ -26,11 +27,12 @@ public final class NbmPluginExtension {
     private String moduleAuthor;
     private String homePage;
     private Boolean needsRestart;
-
+    private String layer;
     private final Configuration harnessConfiguration;
 
     public NbmPluginExtension(Project project) {
         Objects.requireNonNull(project, "project");
+        this.project = project;
 
         this.harnessConfiguration = project.getConfigurations().detachedConfiguration(
                 project.getDependencies().create("org.codehaus.mojo:nbm-maven-harness:8.1"));
@@ -50,7 +52,6 @@ public final class NbmPluginExtension {
         this.friendPackages = new NbmFriendPackages();
         this.keyStore = new NbmKeyStoreDef();
         this.requires = new LinkedList<>();
-        this.project = project;
     }
 
     public NbmFriendPackages getFriendPackages() {
@@ -194,4 +195,13 @@ public final class NbmPluginExtension {
     public void setAutoload(boolean autoload) {
         this.autoload = autoload;
     }
+
+    public String getLayer() {
+        return layer;
+    }
+
+    public void setLayer(String layer) {
+        this.layer = layer;
+    }
+
 }

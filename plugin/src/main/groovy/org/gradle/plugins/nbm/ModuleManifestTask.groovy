@@ -145,6 +145,11 @@ class ModuleManifestTask extends ConventionTask {
             result.put('OpenIDE-Module-Public-Packages', packages.join(', '))
         }
 
+        def layer = netbeansExt().layer
+        if (layer) {
+            result.put('OpenIDE-Module-Layer', layer)
+        }
+
         def moduleInstall = netbeansExt().moduleInstall
         if (moduleInstall) {
             result.put('OpenIDE-Module-Install', moduleInstall.replace('.', '/') + '.class')
