@@ -33,7 +33,7 @@ public final class NbmPluginExtension {
         Objects.requireNonNull(project, "project");
 
         this.harnessConfiguration = project.getConfigurations().detachedConfiguration(
-                project.getDependencies().create("org.codehaus.mojo:nbm-maven-harness:8.1"));
+                project.getDependencies().create("org.codehaus.mojo:nbm-maven-harness:8.2"));
 
         this.moduleName = null;
         this.cluster = null;
