@@ -36,7 +36,8 @@ abstract class AbstractIntegrationTest extends Specification {
     CatalogManager cm
 
     def setup() {
-        integTestDir = new File('build/integTest')
+        println "###### Setup #######"
+        integTestDir = new File('build/integTests/' + System.currentTimeMillis())
 
         if(!integTestDir.deleteDir()) {
             fail('Unable to delete integration test directory.')
@@ -55,7 +56,7 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath files('../classes/main')
+        classpath files('../../classes/main')
     }
 }
 
@@ -67,7 +68,7 @@ repositories {
 }
 """
         File settingsFile = createNewFile(integTestDir, 'settings.gradle')
-        settingsFile << ''
+        settingsFile << "rootProject.name = 'integTest'"
 
         gradlePropsFile = createNewFile(integTestDir, 'gradle.properties')
 
