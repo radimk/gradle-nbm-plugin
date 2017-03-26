@@ -4,7 +4,15 @@
 
 <catalog xmlns="urn:oasis:names:tc:entity:xmlns:xml:catalog">                
 
-	<public publicId="-//NetBeans//DTD Autoupdate Module Info 2.4//EN" uri="autoupdate-info-2_4.dtd"/>
-	<system systemId="http://www.netbeans.org/dtds/autoupdate-info-2_3.dtd" uri="autoupdate-info-2_4.dtd"/>
-
+    <public publicId="-//NetBeans//DTD Autoupdate Module Info 2.7//EN" uri="dtd/autoupdate-info-2_7.dtd"/>
+    <public publicId="-//NetBeans//DTD Autoupdate Module Info 2.6//EN" uri="dtd/autoupdate-info-2_6.dtd"/>
+    <public publicId="-//NetBeans//DTD Autoupdate Module Info 2.5//EN" uri="dtd/autoupdate-info-2_5.dtd"/>
+    <public publicId="-//NetBeans//DTD Autoupdate Module Info 2.4//EN" uri="dtd/autoupdate-info-2_4.dtd"/>
+    <public publicId="-//NetBeans//DTD Autoupdate Module Info 2.3//EN" uri="dtd/autoupdate-info-2_3.dtd"/>
+    <public publicId="-//NetBeans//DTD Autoupdate Module Info 2.2//EN" uri="dtd/autoupdate-info-2_2.dtd"/>
+    <public publicId="-//NetBeans//DTD Autoupdate Module Info 2.0//EN" uri="dtd/autoupdate-info-2_0.dtd"/>
+    <public publicId="-//NetBeans//DTD Autoupdate Module Info 1.0//EN" uri="dtd/autoupdate-info-1.0.dtd"/>
+    
+    <public publicId="-//NetBeans//DTD Module Status 1.0//EN" uri="dtd/module-status-1_0.dtd"/>
+    
 </catalog>
