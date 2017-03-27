@@ -62,7 +62,7 @@ class NetBeansTask extends ConventionTask {
 
     @TaskAction
     void generate() {
-        project.logger.info "NetBeansTask running"
+        logger.info "NetBeansTask running"
         // nbmFile.write "Version: ${getVersion()}"
         def moduleDir = getModuleBuildDir()
         if (!moduleDir.isDirectory()) {

@@ -36,7 +36,7 @@ abstract class AbstractIntegrationTest extends Specification {
     CatalogManager cm
 
     def setup() {
-        println "###### Setup #######"
+        println "###### Begin Test #######"
         integTestDir = new File('build/integTests/' + System.currentTimeMillis())
 
         if(!integTestDir.deleteDir()) {
@@ -152,16 +152,24 @@ repositories {
             fail("Unable to check target directory '${dir?.canonicalPath}' for files.")
         }
     }
-
+    
     protected GradleProject runTasks(File projectDir, String... tasks) {
         ProjectConnection connection = GradleConnector.newConnector().forProjectDirectory(projectDir).connect()
 
         try {
+            println "## Execute $tasks of project '$integTestDir'"
             BuildLauncher builder = connection.newBuild()
-            builder.forTasks(tasks).run()
+            builder.forTasks(tasks)
+           
+            builder.standardOutput = System.out
+            builder.standardError = System.err
+            
+            builder.run()
+
             return connection.getModel(GradleProject)
         }
         finally {
+            println "## Execution finished"
             connection?.close()
         }
     }

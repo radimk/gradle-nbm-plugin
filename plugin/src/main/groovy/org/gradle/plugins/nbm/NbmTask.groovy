@@ -33,7 +33,7 @@ class NbmTask extends ConventionTask {
 
     @TaskAction
     void generate() {
-        project.logger.info "NbmTask running"
+        logger.info "NbmTask running"
         def nbmFile = getOutputFile()
         def nbmDir = getNbmBuildDir()
         if (!nbmDir.isDirectory()) {

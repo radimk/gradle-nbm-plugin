@@ -151,7 +151,6 @@ class ModuleManifestTask extends ConventionTask {
             result.put('OpenIDE-Module-Java-Dependencies', javaDependency)
         }
         
-        println netbeansExt().autoupdateShowInClient
         result.put('AutoUpdate-Show-In-Client', String.valueOf(netbeansExt().autoupdateShowInClient))
         
         def moduleInstall = netbeansExt().moduleInstall
@@ -170,7 +169,7 @@ class ModuleManifestTask extends ConventionTask {
         def mainAttributes = manifest.mainAttributes
 
         getManifestEntries().each { key, value ->
-            println 'add manifest entry ' + key + ': ' + value + ' / ' + (value == null)
+            logger.debug  'add manifest entry ' + key + ': ' + value + ' / ' + (value == null)
             mainAttributes.put(new Attributes.Name(key), value)
         }
         return manifest
@@ -179,7 +178,7 @@ class ModuleManifestTask extends ConventionTask {
     @TaskAction
     void generate() {
         def manifestFile = getGeneratedManifestFile()
-        project.logger.info "Generating NetBeans module manifest $manifestFile"
+        logger.info "Generating NetBeans module manifest $manifestFile"
 
         def os = new FileOutputStream(manifestFile)
         try {
