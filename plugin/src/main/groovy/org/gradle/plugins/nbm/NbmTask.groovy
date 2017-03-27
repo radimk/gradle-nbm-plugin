@@ -78,13 +78,13 @@ class NbmTask extends ConventionTask {
             signature.storepass = keyStore.password
         }
 		
-		// The CreateNbmMojo class tests for "extra" (the default cluster)
-		// and will not set the target cluster to that value.  We should do the
-		// same.
-		String cluster = nbm.cluster ?: "extra"
-		if (!cluster.equals("extra")) {
-			makenbm.setTargetcluster(cluster)
-		}
+        // The CreateNbmMojo class tests for "extra" (the default cluster)
+        // and will not set the target cluster to that value.  We should do the
+        // same.
+        String cluster = nbm.cluster ?: "extra"
+        if (!cluster.equals("extra")) {
+            makenbm.setTargetcluster(cluster)
+        }
 		
         makenbm.execute()
     }
