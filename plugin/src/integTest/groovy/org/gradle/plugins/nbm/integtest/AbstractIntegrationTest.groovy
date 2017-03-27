@@ -39,7 +39,7 @@ abstract class AbstractIntegrationTest extends Specification {
         println "###### Begin Test #######"
         integTestDir = new File('build/integTests/' + System.currentTimeMillis())
 
-        if(!integTestDir.deleteDir()) {
+        if(!new File('build/integTests').deleteDir()) {
             fail('Unable to delete integration test directory.')
         }
 
