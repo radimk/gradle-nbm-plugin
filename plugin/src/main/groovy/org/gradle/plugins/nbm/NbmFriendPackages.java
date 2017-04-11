@@ -97,10 +97,9 @@ public final class NbmFriendPackages {
     }
 
     private static String toStarImport(String packageName) {
-        String suffix = ".*";
-        return packageName.endsWith(suffix)
+        return packageName.endsWith("*")
                 ? packageName
-                : packageName + suffix;
+                : packageName + ".*";
     }
 
     private interface PackageNameGenerator {
