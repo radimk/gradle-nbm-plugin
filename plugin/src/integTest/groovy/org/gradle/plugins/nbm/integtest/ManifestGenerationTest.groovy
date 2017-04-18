@@ -273,7 +273,7 @@ nbm {
         assert manifest.get('OpenIDE-Module-Public-Packages') == 'rootpckg.mypckg.*, rootpckg.mypckg.subpckg.*'
     }
 
-    def "friend packages are added explicitly with starts"() {
+    def "friend packages are added explicitly with stars"() {
         // Set the moduleName because I have no idea what the project's name is,
         // so can't rely on the default value for that
         buildFile << \
@@ -299,6 +299,34 @@ nbm {
         then:
         def manifest = checkDefaultModuleManifest(project)
         assert manifest.get('OpenIDE-Module-Public-Packages') == 'rootpckg.mypckg.*, rootpckg.mypckg.subpckg.*'
+    }
+
+    def "friend packages are added explicitly with double stars"() {
+        // Set the moduleName because I have no idea what the project's name is,
+        // so can't rely on the default value for that
+        buildFile << \
+"""
+apply plugin: org.gradle.plugins.nbm.NbmPlugin
+version = '3.5.6'
+nbm {
+  moduleName = 'my-test-project'
+  implementationVersion = version
+
+  friendPackages {
+    add 'rootpckg.mypckg.**'
+    add 'rootpckg.mypckg.subpckg.**'
+  }
+}
+"""
+
+        setupDefaultSources()
+
+        when:
+        GradleProject project = runTasks(integTestDir, "generateModuleManifest")
+
+        then:
+        def manifest = checkDefaultModuleManifest(project)
+        assert manifest.get('OpenIDE-Module-Public-Packages') == 'rootpckg.mypckg.**, rootpckg.mypckg.subpckg.**'
     }
 
     def setupDefaultSources() {
