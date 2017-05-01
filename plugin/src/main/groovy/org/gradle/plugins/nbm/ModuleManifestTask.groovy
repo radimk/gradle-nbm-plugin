@@ -52,12 +52,6 @@ class ModuleManifestTask extends ConventionTask {
         }
     }
 
-    private String getBuildDate() {
-        Date now = new Date(System.currentTimeMillis())
-        def format = new SimpleDateFormat("yyyyMMddHHmm")
-        return format.format(now)
-    }
-
     private Map<String, String> getManifestEntries() {
         Map<String, String> result = new HashMap<String, String>()
 
@@ -110,8 +104,8 @@ class ModuleManifestTask extends ConventionTask {
 
         if (!moduleDeps.isEmpty())
             result.put(
-                    'OpenIDE-Module-Module-Dependencies',
-                    moduleDeps.entrySet().collect { it.key + it.value }.join(', ')
+                'OpenIDE-Module-Module-Dependencies',
+                moduleDeps.entrySet().collect { it.key + it.value }.join(', ')
             )
 
         result.put('Created-By', 'Gradle NBM plugin')
@@ -131,9 +125,9 @@ class ModuleManifestTask extends ConventionTask {
         def implVersion = netbeansExt().implementationVersion
         if (implVersion) {
             result.put('OpenIDE-Module-Implementation-Version', implVersion)
-            result.put('OpenIDE-Module-Build-Version', getBuildDate())
+            result.put('OpenIDE-Module-Build-Version', netbeansExt().buildDate)
         } else {
-            result.put('OpenIDE-Module-Implementation-Version', '')
+            result.put('OpenIDE-Module-Implementation-Version', netbeansExt().buildDate)
         }
         result.put('OpenIDE-Module-Specification-Version', netbeansExt().specificationVersion)
 
@@ -143,8 +137,23 @@ class ModuleManifestTask extends ConventionTask {
             def packages = packageListSet.toArray()
             Arrays.sort(packages) // because why not
             result.put('OpenIDE-Module-Public-Packages', packages.join(', '))
+        } else {
+            result.put('OpenIDE-Module-Public-Packages', '-')
         }
 
+        def layer = netbeansExt().layer
+        if (layer) {
+            result.put('OpenIDE-Module-Layer', layer)
+        }
+
+        def javaDependency = netbeansExt().javaDependency
+        if (javaDependency) {
+            result.put('OpenIDE-Module-Java-Dependencies', javaDependency)
+        }
+        
+        println netbeansExt().autoupdateShowInClient
+        result.put('AutoUpdate-Show-In-Client', String.valueOf(netbeansExt().autoupdateShowInClient))
+        
         def moduleInstall = netbeansExt().moduleInstall
         if (moduleInstall) {
             result.put('OpenIDE-Module-Install', moduleInstall.replace('.', '/') + '.class')
@@ -181,8 +190,9 @@ class ModuleManifestTask extends ConventionTask {
     }
 
     private String computeClasspath() {
-        FileCollection classpath = project.tasks.findByPath('netbeans').classpath
         def jarNames = [] as Set
+        FileCollection classpath = project.tasks.findByPath('netbeans').classpath
+        String classpathExtFolder = netbeansExt().classpathExtFolder
         classpath.asFileTree.visit { FileVisitDetails fvd ->
             if (fvd.directory) return
             if (!fvd.name.endsWith('jar')) return
@@ -193,7 +203,7 @@ class ModuleManifestTask extends ConventionTask {
             if (attrValue != null) return
 
             // JAR but not NetBeans module
-            jarNames += 'ext/' + fvd.name
+            jarNames += 'ext/'+ (classpathExtFolder ? "$classpathExtFolder/" : "") + fvd.name
         }
         jarNames.join(' ')
     }

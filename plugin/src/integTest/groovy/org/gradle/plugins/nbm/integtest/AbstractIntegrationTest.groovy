@@ -48,7 +48,8 @@ abstract class AbstractIntegrationTest extends Specification {
 
         buildFile = createNewFile(integTestDir, 'build.gradle')
 
-        buildFile << """
+        buildFile << \
+"""
 buildscript {
     repositories {
         mavenCentral()
