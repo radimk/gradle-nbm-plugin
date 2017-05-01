@@ -304,7 +304,8 @@ nbm {
     def "friend packages are added explicitly with double stars"() {
         // Set the moduleName because I have no idea what the project's name is,
         // so can't rely on the default value for that
-        buildFile << """
+        buildFile << \
+"""
 apply plugin: org.gradle.plugins.nbm.NbmPlugin
 version = '3.5.6'
 nbm {
