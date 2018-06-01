@@ -9,12 +9,16 @@ buildscript {
         // }
     }
     dependencies {
-        classpath "cz.kubacki.gradle.plugins:gradle-nbm-plugin:1.10.0"
+        classpath "cz.kubacki.gradle.plugins:gradle-nbm-plugin:1.17.0"
         gradleApi()
     }
 }
 apply plugin: 'java'
 apply plugin: 'cz.kubacki.nbm'
+
+ext {
+    netbeansVersion = "RELEASE82"
+}
 
 repositories {
     mavenCentral()
@@ -35,12 +39,12 @@ nbm {
 }
 
 dependencies {
-    compile 'org.netbeans.api:org-openide-awt:RELEASE74'
-    compile 'org.netbeans.api:org-openide-util:RELEASE74'
-    compile 'org.netbeans.api:org-netbeans-api-annotations-common:RELEASE74'
+    compile "org.netbeans.api:org-openide-awt:$netbeansVersion"
+    compile "org.netbeans.api:org-openide-util:$netbeansVersion"
+    compile "org.netbeans.api:org-netbeans-api-annotations-common:$netbeansVersion"
 
     // Use 'implementation' configured if implementation dependency is needed for some module
-    // implementation 'org.netbeans.api:org-netbeans-api-annotations-common:RELEASE74'
+    // implementation "org.netbeans.api:org-netbeans-api-annotations-common:$netbeansVersion"
 
     // example of dependency that will be copied to modules/ext and added to ClassPath: attribute in MANIFEST.MF
     compile 'org.slf4j:slf4j-api:1.7.2'
