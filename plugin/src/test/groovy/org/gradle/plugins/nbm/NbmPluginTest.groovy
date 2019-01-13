@@ -14,8 +14,9 @@ import static org.junit.Assert.*
 
 public class NbmPluginTest {
 
+    // nbm plugin adds nbm task to project when JavaPlugin already applied
     @Test
-    public void 'nbm plugin adds nbm task to project when JavaPlugin already applied'() {
+    public void checkProjectTask() {
         Project project = ProjectBuilder.builder().build()
         project.project.plugins.apply(JavaPlugin)
         project.project.plugins.apply(NbmPlugin)
@@ -28,7 +29,8 @@ public class NbmPluginTest {
         assertTrue(project.tasks.jar in netbeansTask.dependsOn)
     }
 
-    @Test public void createsConfigurations() {
+    @Test
+    public void createsConfigurations() {
         Project project = ProjectBuilder.builder().build()
         project.project.plugins.apply(JavaPlugin)
         project.project.plugins.apply(NbmPlugin)
@@ -55,8 +57,9 @@ public class NbmPluginTest {
         assertTrue(configuration.transitive)
     }
 
+    // nbm plugin adds task to generate manifest used by JAR
     @Test
-    public void 'nbm plugin adds task to generate manifest used by JAR'() {
+    public void checkManifest() {
         Project project = ProjectBuilder.builder().build()
         project.project.plugins.apply(JavaPlugin)
         project.project.plugins.apply(NbmPlugin)
@@ -69,8 +72,9 @@ public class NbmPluginTest {
         assertTrue(manifestTasks.iterator().next() in jarTask.dependsOn)
     }
 
+    // nbm plugin hooks directories for merged properties
     @Test
-    public void 'nbm plugin hooks directories for merged properties'() {
+    public void checkPluinDirectoryWithMergedProperties() {
         Project project = ProjectBuilder.builder().build()
         project.project.plugins.apply(JavaPlugin)
         project.project.plugins.apply(NbmPlugin)
@@ -80,24 +84,27 @@ public class NbmPluginTest {
         assertTrue(project.tasks.getByName('mergeProperties').outputs.files.contains(project.file('build/generated-resources/output')))
     }
 
+    // default module name is the project name.
     @Test
-    public void 'default module name is the project name.'() {
+    public void checkModuleNameDefaults() {
         Project project = ProjectBuilder.builder().withName('my_test_project').build()
         project.project.plugins.apply(NbmPlugin)
 
         assertEquals(project.nbm.moduleName, 'my_test_project')
     }
 
+    // default module name is the project name with dots instead of dashes.
     @Test
-    public void 'default module name is the project name with dots instead of dashes.'() {
+    public void checkModuleNameFormat () {
         Project project = ProjectBuilder.builder().withName('my-test-project').build()
         project.project.plugins.apply(NbmPlugin)
 
         assertEquals(project.nbm.moduleName, 'my.test.project')
     }
 
+    // no implementation version by default
     @Test
-    public void 'no implementation version by default'() {
+    public void checkImplementationVersion() {
         Project project = ProjectBuilder.builder().withName('my-test-project').build()
         project.project.plugins.apply(NbmPlugin)
 

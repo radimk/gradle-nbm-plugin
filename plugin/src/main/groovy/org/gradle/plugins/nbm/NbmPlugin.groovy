@@ -172,18 +172,20 @@ public class NbmPlugin implements Plugin<Project> {
         compileJavaTask.outputs.dir(generatedClasses)
         compileJavaTask.doLast { JavaCompile it ->
             new File(generatedClasses).mkdirs()
-            project.copy {
-                from project.sourceSets.main.output.classesDir
-                into generatedClasses
-                include '**/*.properties'
-                includeEmptyDirs false
-            }
-            project.fileTree(dir: project.sourceSets.main.output.classesDir).include('**/*.properties').visit {
-                if (!it.isDirectory()) {
-                    it.file.delete()
+            project.sourceSets.main.output.classesDirs.each {
+                def projectClassDir = it
+                project.copy {
+                    from projectClassDir
+                    into generatedClasses
+                    include '**/*.properties'
+                    includeEmptyDirs false
+                }
+                project.fileTree(dir: projectClassDir).include('**/*.properties').visit {
+                    if (!it.isDirectory()) {
+                        it.file.delete()
+                    }
                 }
             }
-
         }
         Copy processResourcesTask = project.tasks.getByName('processResources')
         processResourcesTask.outputs.dir(generatedResources)
