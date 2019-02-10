@@ -70,10 +70,9 @@ class ModuleManifestTask extends ConventionTask {
             bundleArtifacts.addAll(it.moduleArtifacts)
         }
 
+        Set<File> moduleDependencies = new HashSet<>()
         compileConfig.firstLevelModuleDependencies.each { ResolvedDependency it ->
-            // println 'module ' + it.name + ', ' + it.id.id
             it.moduleArtifacts.each { a ->
-                // println '  artifact ' + a + ' file ' + a.file
                 if (a.file?.exists() && 'jar' == a.extension) {
                     JarFile jar = new JarFile(a.file)
                     def attrs = jar.manifest?.mainAttributes
@@ -91,6 +90,19 @@ class ModuleManifestTask extends ConventionTask {
                                 moduleDeps.put(moduleName, " > $moduleVersion")
                         }
                     }
+                    moduleDependencies.add a.file
+                }
+            }
+        }
+        compileConfig.files.each { File file ->
+            if (!moduleDependencies.contains(file)) {
+                JarFile jar = new JarFile(file)
+                def attrs = jar.manifest?.mainAttributes
+                def moduleName = attrs?.getValue(new Attributes.Name('OpenIDE-Module'))
+                def moduleVersion = attrs?.getValue(new Attributes.Name('OpenIDE-Module-Specification-Version'))
+                if (moduleName && moduleVersion) {
+                    moduleDeps.put(moduleName, " > $moduleVersion")
+                    moduleDependencies.add file
                 }
             }
         }
