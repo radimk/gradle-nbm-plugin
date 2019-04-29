@@ -50,7 +50,7 @@ dependencies {
     compile 'org.slf4j:slf4j-api:1.7.2'
 }
 
-// set netbeansInstallDir project property
+// set netBeansInstallDir project property
 
 task netBeansRun(type: Exec) {
     doFirst {
