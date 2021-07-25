@@ -1,12 +1,15 @@
 buildscript {
     repositories {
-        jcenter()
+        mavenCentral()
         // uncomment following to use development copy created by running
         // ./gradlew :nbmPlugin:publish 
         // from the project root directory
         // maven {
         //     url uri('../../plugin/build/repo')
         // }
+
+        // For the tooling api
+        maven { url = uri("https://repo.gradle.org/gradle/libs-releases") }
     }
     dependencies {
         classpath "cz.kubacki.gradle.plugins:gradle-nbm-plugin:1.17.0"
@@ -17,14 +20,11 @@ apply plugin: 'java'
 apply plugin: 'cz.kubacki.nbm'
 
 ext {
-    netbeansVersion = "RELEASE82"
+    netbeansVersion = "RELEASE124"
 }
 
 repositories {
     mavenCentral()
-    maven {
-        url 'http://bits.netbeans.org/maven2/'
-    }
 }
 
 version = '1.2.3'
@@ -39,15 +39,16 @@ nbm {
 }
 
 dependencies {
-    compile "org.netbeans.api:org-openide-awt:$netbeansVersion"
-    compile "org.netbeans.api:org-openide-util:$netbeansVersion"
-    compile "org.netbeans.api:org-netbeans-api-annotations-common:$netbeansVersion"
+    implementation "org.netbeans.api:org-openide-awt:$netbeansVersion"
+    annotationProcessor "org.netbeans.api:org-openide-awt:$netbeansVersion"
+    implementation "org.netbeans.api:org-openide-util:$netbeansVersion"
+    implementation "org.netbeans.api:org-netbeans-api-annotations-common:$netbeansVersion"
 
     // Use 'implementation' configured if implementation dependency is needed for some module
     // implementation "org.netbeans.api:org-netbeans-api-annotations-common:$netbeansVersion"
 
     // example of dependency that will be copied to modules/ext and added to ClassPath: attribute in MANIFEST.MF
-    compile 'org.slf4j:slf4j-api:1.7.2'
+    implementation 'org.slf4j:slf4j-api:1.7.2'
 }
 
 // set netBeansInstallDir project property
