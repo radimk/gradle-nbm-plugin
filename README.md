@@ -3,6 +3,8 @@ gradle-nbm-plugin
 
 A Gradle plugin to build [NetBeans](http://www.netbeans.org/) modules and RCP applications.
 
+The project is not actively developed. 
+
 # Features
 
 ## Build standalone NetBeans modules
