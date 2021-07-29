@@ -146,11 +146,11 @@ public class NbmPlugin implements Plugin<Project> {
                 setDescription("NBM module's implementation dependencies");
         Configuration bundleConfiguration = configurationContainer.create(BUNDLE_CONFIGURATION_NAME).setVisible(false).
                 setDescription("NBM module's dependencies on OSGi bundles");
-        configurationContainer.getByName(JavaPlugin.COMPILE_CONFIGURATION_NAME)
+        configurationContainer.getByName(JavaPlugin.IMPLEMENTATION_CONFIGURATION_NAME)
                 .extendsFrom(provideCompileConfiguration)
                 .extendsFrom(implementationConfiguration)
                 .extendsFrom(bundleConfiguration);
-        configurationContainer.getByName(JavaPlugin.RUNTIME_CONFIGURATION_NAME).extendsFrom(provideRuntimeConfiguration);
+        configurationContainer.getByName(JavaPlugin.RUNTIME_CLASSPATH_CONFIGURATION_NAME).extendsFrom(provideRuntimeConfiguration);
     }
 
     private configure(Project project) {

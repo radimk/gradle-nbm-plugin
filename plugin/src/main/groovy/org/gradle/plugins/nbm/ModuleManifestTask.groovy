@@ -58,7 +58,7 @@ class ModuleManifestTask extends ConventionTask {
         Map<String, String> moduleDeps = new HashMap<>()
 
         def mainSourceSet = project.sourceSets.main
-        def compileConfig = project.configurations.findByName(mainSourceSet.compileConfigurationName).resolvedConfiguration
+        def compileConfig = project.configurations.findByName(mainSourceSet.runtimeClasspathConfigurationName).resolvedConfiguration
 
         HashSet<ResolvedArtifact> implArtifacts = new HashSet<>()
         project.configurations.nbimplementation.resolvedConfiguration.firstLevelModuleDependencies.each { ResolvedDependency it ->
