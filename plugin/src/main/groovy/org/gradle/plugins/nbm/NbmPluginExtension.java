@@ -40,8 +40,8 @@ public final class NbmPluginExtension {
         Objects.requireNonNull(project, "project");
         this.project = project;
 
-        this.harnessConfiguration = project.getConfigurations().detachedConfiguration(
-                project.getDependencies().create("org.codehaus.mojo:nbm-maven-harness:8.2"));
+        this.harnessConfiguration = project.getConfigurations()
+            .detachedConfiguration(project.getDependencies().create("org.codehaus.mojo:nbm-maven-harness:8.2"));
 
         this.moduleName = null;
         this.cluster = null;
@@ -60,7 +60,7 @@ public final class NbmPluginExtension {
         this.requires = new LinkedList<>();
         this.classpathExtFolder = null;
         this.autoupdateShowInClient = true;
-        
+
         // Initializse default values
         this.buildDate = new SimpleDateFormat("yyyyMMddHHmm").format(new Date(System.currentTimeMillis()));
         requires("org.openide.modules.ModuleFormat1");
@@ -113,9 +113,7 @@ public final class NbmPluginExtension {
     }
 
     public void setLicenseFile(Object licenseFile) {
-        this.licenseFile = licenseFile != null
-                ? project.file(licenseFile)
-                : null;
+        this.licenseFile = licenseFile != null ? project.file(licenseFile) : null;
     }
 
     public String getModuleInstall() {

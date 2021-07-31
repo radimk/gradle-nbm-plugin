@@ -15,6 +15,7 @@
  */
 package org.gradle.plugins.nbm.integtest
 
+import org.apache.xml.resolver.CatalogManager
 import org.gradle.tooling.BuildLauncher
 import org.gradle.tooling.GradleConnector
 import org.gradle.tooling.ProjectConnection
@@ -22,7 +23,6 @@ import org.gradle.tooling.model.GradleProject
 import spock.lang.Specification
 
 import static org.spockframework.util.Assert.fail
-import org.apache.xml.resolver.CatalogManager
 
 /**
  * Abstract integration test using Gradle's tooling API.
@@ -38,11 +38,11 @@ abstract class AbstractIntegrationTest extends Specification {
     def setup() {
         integTestDir = new File('build/integTest')
 
-        if(!integTestDir.deleteDir()) {
+        if (!integTestDir.deleteDir()) {
             fail('Unable to delete integration test directory.')
         }
 
-        if(!integTestDir.mkdirs()) {
+        if (!integTestDir.mkdirs()) {
             fail('Unable to create integration test directory.')
         }
 
@@ -84,8 +84,8 @@ repositories {
     protected File createNewFile(File parent, String filename) {
         File file = new File(parent, filename)
 
-        if(!file.exists()) {
-            if(!file.createNewFile()) {
+        if (!file.exists()) {
+            if (!file.createNewFile()) {
                 fail("Unable to create new test file $file.canonicalPath.")
             }
         }
@@ -94,8 +94,8 @@ repositories {
     }
 
     private static void ensureDirectory(File dir) {
-        if(!dir.exists()) {
-            if(!dir.mkdirs()) {
+        if (!dir.exists()) {
+            if (!dir.mkdirs()) {
                 fail("Unable to create new test directory $dir.canonicalPath.")
             }
         }
@@ -103,7 +103,7 @@ repositories {
 
     private static File subPath(File root, String... childParts) {
         File file = root
-        for (String part: childParts) {
+        for (String part : childParts) {
             file = new File(file, part)
         }
         file
@@ -119,8 +119,8 @@ repositories {
         File file = subPath(integTestDir, pathParts)
         ensureDirectory(file.parentFile)
 
-        if(!file.exists()) {
-            if(!file.createNewFile()) {
+        if (!file.exists()) {
+            if (!file.createNewFile()) {
                 fail("Unable to create new test file $file.canonicalPath.")
             }
         }
@@ -147,7 +147,7 @@ repositories {
     }
 
     private void assertExistingDirectory(File dir) {
-        if(!dir || !dir.exists()) {
+        if (!dir || !dir.exists()) {
             fail("Unable to check target directory '${dir?.canonicalPath}' for files.")
         }
     }

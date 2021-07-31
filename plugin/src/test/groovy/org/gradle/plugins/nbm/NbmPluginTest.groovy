@@ -9,7 +9,12 @@ import org.gradle.testfixtures.ProjectBuilder
 import org.junit.Test
 
 import static org.hamcrest.Matchers.equalTo
-import static org.junit.Assert.*
+import static org.junit.Assert.assertEquals
+import static org.junit.Assert.assertFalse
+import static org.junit.Assert.assertNotNull
+import static org.junit.Assert.assertNull
+import static org.junit.Assert.assertThat
+import static org.junit.Assert.assertTrue
 
 public class NbmPluginTest {
 
@@ -36,7 +41,7 @@ public class NbmPluginTest {
 
         def configuration = project.configurations.getByName(JavaPlugin.IMPLEMENTATION_CONFIGURATION_NAME)
         assertThat(Configurations.getNames(configuration.extendsFrom),
-                equalTo(Sets.newHashSet(NbmPlugin.PROVIDED_COMPILE_CONFIGURATION_NAME, NbmPlugin.IMPLEMENTATION_CONFIGURATION_NAME, NbmPlugin.BUNDLE_CONFIGURATION_NAME)))
+            equalTo(Sets.newHashSet(NbmPlugin.PROVIDED_COMPILE_CONFIGURATION_NAME, NbmPlugin.IMPLEMENTATION_CONFIGURATION_NAME, NbmPlugin.BUNDLE_CONFIGURATION_NAME)))
         assertFalse(configuration.visible)
         assertTrue(configuration.transitive)
 
@@ -94,7 +99,7 @@ public class NbmPluginTest {
 
     // default module name is the project name with dots instead of dashes.
     @Test
-    public void checkModuleNameFormat () {
+    public void checkModuleNameFormat() {
         Project project = ProjectBuilder.builder().withName('my-test-project').build()
         project.project.plugins.apply(NbmPlugin)
 

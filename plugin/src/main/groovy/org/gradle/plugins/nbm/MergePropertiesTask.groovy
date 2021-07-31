@@ -52,8 +52,8 @@ class MergePropertiesTask extends ConventionTask {
             } else {
                 def destFile = new File(generatedOutput, path)
                 destFile << new File(generatedClasses, path).text +
-                        '\n' +
-                        new File(generatedResources, path).text
+                    '\n' +
+                    new File(generatedResources, path).text
             }
         }
     }
