@@ -167,6 +167,12 @@ public class NbmPlugin implements Plugin<Project> {
         def generatedResources = "${project.buildDir}/generated-resources/resources"
         def generatedOutput = "${project.buildDir}/generated-resources/output"
 
+        mergeTask.inputDirectories.add(new File(generatedClasses))
+        mergeTask.inputDirectories.add(new File(generatedResources))
+        mergeTask.outputDir = new File(generatedOutput)
+        mergeTask.dependsOn project.tasks.findByName('compileJava')
+        mergeTask.dependsOn project.tasks.findByName('processResources')
+
         project.sourceSets.main.output.dir(generatedOutput, builtBy: 'mergeProperties')
         def compileJavaTask = project.tasks.getByName('compileJava')
         compileJavaTask.outputs.dir(generatedClasses)
