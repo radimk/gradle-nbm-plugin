@@ -3,6 +3,7 @@ apply plugin: 'java'
 // apply plugin: 'maven'
 apply plugin: 'idea'
 apply plugin: 'maven-publish'
+apply plugin: 'java-gradle-plugin'
 apply plugin: "nebula.release"
 apply plugin: "com.diffplug.spotless"
 apply plugin: 'codenarc'
@@ -31,6 +32,18 @@ artifacts {
     archives sourcesJar, javadocJar
 }
 
+sourceSets {
+    integTest {
+        compileClasspath += sourceSets.main.output
+        runtimeClasspath += sourceSets.main.output
+    }
+}
+
+configurations {
+    integTestImplementation.extendsFrom testImplementation
+    integTestRuntimeOnly.extendsFrom testRuntimeOnly
+}
+
 dependencies {
     implementation gradleApi()
     implementation localGroovy()
@@ -38,11 +51,13 @@ dependencies {
     implementation "org.codehaus.mojo:nbm-maven-harness:8.2"
     runtimeClasspath 'org.slf4j:slf4j-simple:1.7.5'
 
+    testImplementation "org.junit.jupiter:junit-jupiter-api:5.8.2"
+    testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:5.8.2"
+
     testImplementation "org.spockframework:spock-core:2.0-groovy-3.0", {
         exclude module: "groovy-all"
     }
-    testImplementation "junit:junit:4.11"
-    testImplementation "org.hamcrest:hamcrest-library:1.3"
+    testImplementation 'org.hamcrest:hamcrest:2.2'
     testImplementation "com.google.guava:guava:14.0.1"
     testImplementation group: 'xml-resolver', name: 'xml-resolver', version: '1.2'
 
@@ -56,15 +71,11 @@ repositories {
     mavenCentral()
 }
 
-sourceSets {
-    integTest {
-        groovy.srcDirs = [ project.file('src/integTest/groovy') ]
-        compileClasspath = sourceSets.main.output + configurations.testRuntimeClasspath
-        runtimeClasspath = output + compileClasspath
-    }
-}
-
 def catalogPath = file('src/integTest/resources/catalog.xml').canonicalPath
+
+test {
+    useJUnitPlatform()
+}
 
 task integTest(type: Test) {
     description = 'Runs the integration tests.'
@@ -78,6 +89,7 @@ task integTest(type: Test) {
 
     systemProperty "xml.catalog.files", catalogPath
 
+    useJUnitPlatform()
 }
 
 task testJenkins(dependsOn: test) {

@@ -22,7 +22,10 @@ import org.gradle.tooling.ProjectConnection
 import org.gradle.tooling.model.GradleProject
 import spock.lang.Specification
 
-import static org.spockframework.util.Assert.fail
+import java.nio.file.Files
+import java.nio.file.Path
+
+import static org.junit.jupiter.api.Assertions.fail
 
 /**
  * Abstract integration test using Gradle's tooling API.
@@ -35,16 +38,13 @@ abstract class AbstractIntegrationTest extends Specification {
     File gradlePropsFile
     CatalogManager cm
 
+    String nbVersion = "RELEASE124"
+
     def setup() {
-        integTestDir = new File('build/integTest')
-
-        if (!integTestDir.deleteDir()) {
-            fail('Unable to delete integration test directory.')
-        }
-
-        if (!integTestDir.mkdirs()) {
-            fail('Unable to create integration test directory.')
-        }
+        def buildDir = Path.of("build").toAbsolutePath()
+        def testRoot = buildDir.resolve("integTest")
+        Files.createDirectories(testRoot)
+        integTestDir = Files.createTempDirectory(testRoot, "test-").toFile()
 
         buildFile = createNewFile(integTestDir, 'build.gradle')
 
@@ -55,15 +55,13 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath files('../classes/main')
+        classpath files('${buildDir.resolve("classes/groovy/main")}')
+        classpath files('${buildDir.resolve("resources/main")}')
     }
 }
 
 repositories {
     mavenCentral()
-    maven {
-        url 'http://bits.netbeans.org/maven2/'
-    }
 }
 """
         File settingsFile = createNewFile(integTestDir, 'settings.gradle')
@@ -73,6 +71,10 @@ repositories {
 
         cm = new CatalogManager()
         cm.setVerbosity(9)
+    }
+
+    def cleanup() {
+        integTestDir.deleteDir()
     }
 
     protected File createNewDir(File parent, String dirname) {
