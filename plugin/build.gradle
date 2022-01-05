@@ -59,10 +59,10 @@ dependencies {
     testImplementation group: 'xml-resolver', name: 'xml-resolver', version: '1.2'
 }
 repositories {
-    mavenCentral()
     maven {
-        url 'https://repo.gradle.org/gradle/libs-releases-local'
+        url 'https://repo.gradle.org/gradle/libs-releases'
     }
+    mavenCentral()
 }
 
 sourceSets {
