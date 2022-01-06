@@ -1,14 +1,11 @@
-buildscript {
-    repositories {
-        mavenCentral()
-    }
-}
 apply plugin: 'groovy'
 apply plugin: 'java'
 // apply plugin: 'maven'
 apply plugin: 'idea'
 apply plugin: 'maven-publish'
 apply plugin: "nebula.release"
+apply plugin: "com.diffplug.spotless"
+apply plugin: 'codenarc'
 
 def compatibilityVersion = JavaVersion.VERSION_1_8
 sourceCompatibility = compatibilityVersion
@@ -48,6 +45,9 @@ dependencies {
     testImplementation "org.hamcrest:hamcrest-library:1.3"
     testImplementation "com.google.guava:guava:14.0.1"
     testImplementation group: 'xml-resolver', name: 'xml-resolver', version: '1.2'
+
+    codenarc "org.codenarc:CodeNarc:2.2.0"
+    codenarc "org.codehaus.groovy:groovy-all:3.0.9"
 }
 repositories {
     maven {
@@ -58,7 +58,7 @@ repositories {
 
 sourceSets {
     integTest {
-        groovy.srcDir file('src/integTest/groovy')
+        groovy.srcDirs = [ project.file('src/integTest/groovy') ]
         compileClasspath = sourceSets.main.output + configurations.testRuntimeClasspath
         runtimeClasspath = output + compileClasspath
     }
@@ -90,7 +90,6 @@ task testJenkins(dependsOn: test) {
 }
 check.dependsOn testJenkins, integTest
 
-
 publishing {
     publications {
         mavenJava(MavenPublication) {
@@ -116,4 +115,69 @@ publishing {
 
 idea.module {
     testSourceDirs += file('src/integTest/groovy')
+}
+
+codenarc {
+    toolVersion = '2.2.0'
+    configFile = rootProject.file('gradle/codenarc.groovy')
+    reportFormat = 'html'
+}
+
+codenarcMain {
+    compilationClasspath = sourceSets.main.compileClasspath + sourceSets.main.output
+}
+
+codenarcTest {
+    compilationClasspath = sourceSets.test.compileClasspath + sourceSets.test.output
+}
+
+codenarcIntegTest {
+    compilationClasspath = sourceSets.integTest.compileClasspath + sourceSets.integTest.output
+}
+
+tasks.register("qualityCheck") {
+    group = "Verification"
+    description = "Runs linters and code style checking tools (excluding tests)"
+    dependsOn tasks.classes, tasks.testClasses, tasks.integTestClasses, tasks.spotlessCheck
+    dependsOn tasks.codenarcMain, tasks.codenarcTest, tasks.codenarcIntegTest
+}
+
+spotless {
+    java {
+        target '**/*.java'
+        targetExclude "$buildDir/**/*.java"
+
+        importOrder('', 'javax', 'java', '\\#')
+        eclipse().configFile(rootProject.file('gradle/greclipse.properties'))
+
+        indentWithSpaces()
+        removeUnusedImports()
+        trimTrailingWhitespace()
+        endWithNewline()
+    }
+    groovy {
+        target '**/*.groovy'
+        targetExclude "$buildDir/**/*.groovy"
+        importOrder('', 'javax', 'java', '\\#')
+
+        indentWithSpaces()
+        trimTrailingWhitespace()
+        endWithNewline()
+    }
+    groovyGradle {
+        target('*.gradle')
+        targetExclude "$buildDir/**/*.gradle"
+
+        indentWithSpaces()
+        trimTrailingWhitespace()
+        endWithNewline()
+    }
+    format 'yaml', {
+        target("*.yml")
+        targetExclude "$buildDir/**/*"
+
+        trimTrailingWhitespace()
+        endWithNewline()
+        indentWithSpaces(2)
+    }
 }

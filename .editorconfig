@@ -1,0 +1,29 @@
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+indent_size = 4
+indent_style = space
+insert_final_newline = true
+trim_trailing_whitespace = true
+max_line_length = 120
+tab_width = 4
+
+[{*.bat,*.cmd}]
+end_of_line = crlf
+
+[*.java]
+# Doc: https://youtrack.jetbrains.com/issue/IDEA-170643#focus=streamItem-27-3708697.0-0
+ij_java_imports_layout = *,|,javax.**,|,java.**,|,$*
+ij_java_use_single_class_imports = true
+ij_java_names_count_to_use_import_on_demand = 2147483647
+
+[{*.gant,*.groovy,*.gy}]
+ij_groovy_imports_layout = *,|,javax.**,|,java.**,|,$*
+ij_groovy_use_single_class_imports = true
+ij_groovy_names_count_to_use_import_on_demand = 2147483647
+ij_groovy_class_count_to_use_import_on_demand = 2147483647
+
+[{*.yaml,*.yml}]
+indent_size = 2
