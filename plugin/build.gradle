@@ -108,6 +108,7 @@ publishing {
     }
     repositories {
         maven {
+            name 'LocalRepo'
             url uri("$buildDir/repo")
         }
     }

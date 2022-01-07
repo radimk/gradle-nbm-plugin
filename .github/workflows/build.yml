@@ -1,0 +1,150 @@
+name: Build
+
+on:
+  pull_request:
+    paths-ignore:
+      - '**/*.md'
+  push:
+    paths-ignore:
+      - '**/*.md'
+env:
+  CI: true
+  TERM: dumb
+
+jobs:
+  build_and_test:
+    name: Build and test
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      checks: write
+      pull-requests: write
+
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Validate Gradle wrapper
+        uses: gradle/wrapper-validation-action@v1
+
+      - name: Setup Java 11
+        uses: actions/setup-java@v2
+        with:
+          distribution: 'temurin'
+          java-version: '11'
+
+      - name: Set latest tag as the published version
+        run: |
+          echo "GRADLE_OPTS<<EOF" >> $GITHUB_ENV
+          echo "$GRADLE_OPTS" "-Dorg.gradle.project.release.useLastTag=true" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
+        if: startsWith(github.ref, 'refs/tags/v')
+
+      - name: Build and test
+        uses: gradle/gradle-build-action@v2
+        with:
+          arguments: |
+            --init-script .github/ci.gradle
+            --stacktrace
+            --exclude-task testJenkins
+            assemble test integTest publishMavenJavaPublicationToLocalRepoRepository
+
+      - name: Publish test results
+        uses: EnricoMi/publish-unit-test-result-action@v1
+        if: always()
+        with:
+          files: plugin/build/test-results/**/*.xml
+
+      - name: Upload test tesults
+        uses: actions/upload-artifact@v2
+        with:
+          name: test-results
+          if-no-files-found: error
+          path: |
+            plugin/build/reports/
+            plugin/build/test-results/**/*.xml
+
+      - name: Upload package
+        uses: actions/upload-artifact@v2
+        with:
+          name: repo
+          path: plugin/build/repo
+
+  check_style:
+    name: Check style
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v2
+
+      - name: Setup Java 11
+        uses: actions/setup-java@v2
+        with:
+          distribution: 'temurin'
+          java-version: '11'
+
+      - name: Set latest tag as the published version
+        run: |
+          echo "GRADLE_OPTS<<EOF" >> $GITHUB_ENV
+          echo "$GRADLE_OPTS" "-Dorg.gradle.project.release.useLastTag=true" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
+        if: startsWith(github.ref, 'refs/tags/v')
+
+      - name: Check style
+        uses: gradle/gradle-build-action@v2
+        with:
+          arguments: --init-script .github/ci.gradle qualityCheck
+
+      - name: Upload reports
+        uses: actions/upload-artifact@v2
+        with:
+          name: check-results
+          path: |
+            plugin/build/reports/
+
+  publish:
+    name: Publish to Github Pages
+    runs-on: ubuntu-latest
+    needs: build_and_test
+    if: >-
+      startsWith(github.ref, 'refs/tags/v')
+      || github.ref == 'refs/heads/master'
+      || github.ref == 'refs/heads/main'
+
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Setup Java 11
+        uses: actions/setup-java@v2
+        with:
+          distribution: 'temurin'
+          java-version: '11'
+
+      - name: Set latest tag as the published version
+        run: |
+          echo "GRADLE_OPTS<<EOF" >> $GITHUB_ENV
+          echo "$GRADLE_OPTS" "-Dorg.gradle.project.release.useLastTag=true" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
+        if: startsWith(github.ref, 'refs/tags/v')
+
+      - name: Build
+        uses: gradle/gradle-build-action@v2
+        with:
+          arguments: --init-script .github/ci.gradle --stacktrace build
+
+      - name: Publish to Github Packages
+        uses: gradle/gradle-build-action@v2
+        with:
+          arguments: --init-script .github/ci.gradle publishMavenJavaPublicationToGitHubPackagesRepository
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
