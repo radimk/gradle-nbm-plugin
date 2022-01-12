@@ -15,14 +15,17 @@
  */
 package org.gradle.plugins.nbm.integtest
 
+import org.apache.xml.resolver.CatalogManager
 import org.gradle.tooling.BuildLauncher
 import org.gradle.tooling.GradleConnector
 import org.gradle.tooling.ProjectConnection
 import org.gradle.tooling.model.GradleProject
 import spock.lang.Specification
 
-import static org.spockframework.util.Assert.fail
-import org.apache.xml.resolver.CatalogManager
+import java.nio.file.Files
+import java.nio.file.Path
+
+import static org.junit.jupiter.api.Assertions.fail
 
 /**
  * Abstract integration test using Gradle's tooling API.
@@ -35,16 +38,13 @@ abstract class AbstractIntegrationTest extends Specification {
     File gradlePropsFile
     CatalogManager cm
 
+    String nbVersion = "RELEASE124"
+
     def setup() {
-        integTestDir = new File('build/integTest')
-
-        if(!integTestDir.deleteDir()) {
-            fail('Unable to delete integration test directory.')
-        }
-
-        if(!integTestDir.mkdirs()) {
-            fail('Unable to create integration test directory.')
-        }
+        def buildDir = Path.of("build").toAbsolutePath()
+        def testRoot = buildDir.resolve("integTest")
+        Files.createDirectories(testRoot)
+        integTestDir = Files.createTempDirectory(testRoot, "test-").toFile()
 
         buildFile = createNewFile(integTestDir, 'build.gradle')
 
@@ -55,15 +55,13 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath files('../classes/main')
+        classpath files('${buildDir.resolve("classes/groovy/main")}')
+        classpath files('${buildDir.resolve("resources/main")}')
     }
 }
 
 repositories {
     mavenCentral()
-    maven {
-        url 'http://bits.netbeans.org/maven2/'
-    }
 }
 """
         File settingsFile = createNewFile(integTestDir, 'settings.gradle')
@@ -75,6 +73,10 @@ repositories {
         cm.setVerbosity(9)
     }
 
+    def cleanup() {
+        integTestDir.deleteDir()
+    }
+
     protected File createNewDir(File parent, String dirname) {
         File dir = new File(parent, dirname)
         ensureDirectory(dir)
@@ -84,8 +86,8 @@ repositories {
     protected File createNewFile(File parent, String filename) {
         File file = new File(parent, filename)
 
-        if(!file.exists()) {
-            if(!file.createNewFile()) {
+        if (!file.exists()) {
+            if (!file.createNewFile()) {
                 fail("Unable to create new test file $file.canonicalPath.")
             }
         }
@@ -94,8 +96,8 @@ repositories {
     }
 
     private static void ensureDirectory(File dir) {
-        if(!dir.exists()) {
-            if(!dir.mkdirs()) {
+        if (!dir.exists()) {
+            if (!dir.mkdirs()) {
                 fail("Unable to create new test directory $dir.canonicalPath.")
             }
         }
@@ -103,7 +105,7 @@ repositories {
 
     private static File subPath(File root, String... childParts) {
         File file = root
-        for (String part: childParts) {
+        for (String part : childParts) {
             file = new File(file, part)
         }
         file
@@ -119,8 +121,8 @@ repositories {
         File file = subPath(integTestDir, pathParts)
         ensureDirectory(file.parentFile)
 
-        if(!file.exists()) {
-            if(!file.createNewFile()) {
+        if (!file.exists()) {
+            if (!file.createNewFile()) {
                 fail("Unable to create new test file $file.canonicalPath.")
             }
         }
@@ -147,7 +149,7 @@ repositories {
     }
 
     private void assertExistingDirectory(File dir) {
-        if(!dir || !dir.exists()) {
+        if (!dir || !dir.exists()) {
             fail("Unable to check target directory '${dir?.canonicalPath}' for files.")
         }
     }

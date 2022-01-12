@@ -1,31 +1,18 @@
-buildscript {
-    repositories {
-        jcenter()
-    }
-    dependencies {
-        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.4'
-        classpath "org.ajoberstar:gradle-git:1.3.2"
-        classpath 'org.eclipse.jgit:org.eclipse.jgit:4.0.1.201506240215-r'
-    }
-}
 apply plugin: 'groovy'
 apply plugin: 'java'
 // apply plugin: 'maven'
 apply plugin: 'idea'
 apply plugin: 'maven-publish'
-apply plugin: 'com.jfrog.bintray'
-apply plugin: "org.ajoberstar.release-opinion"
+apply plugin: 'java-gradle-plugin'
+apply plugin: "nebula.release"
+apply plugin: "com.diffplug.spotless"
+apply plugin: 'codenarc'
 
-def compatibilityVersion = 1.7
+def compatibilityVersion = JavaVersion.VERSION_1_8
 sourceCompatibility = compatibilityVersion
 targetCompatibility = compatibilityVersion
 
-import org.ajoberstar.grgit.Grgit
-release {
-    grgit = Grgit.open(project.rootProject.file('.'))
-}
-tasks.release.dependsOn 'build', 'bintrayUpload'
-tasks.bintrayUpload.dependsOn 'jar', 'javadocJar', 'sourcesJar'
+rootProject.tasks.release.dependsOn tasks.publish
 
 [compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
 
@@ -45,38 +32,50 @@ artifacts {
     archives sourcesJar, javadocJar
 }
 
-dependencies {
-  compile gradleApi()
-  compile localGroovy()
-  compile "org.gradle:gradle-tooling-api:${gradle.gradleVersion}"
-  compile "org.codehaus.mojo:nbm-maven-harness:8.2"
-  runtime 'org.slf4j:slf4j-simple:1.7.5'
-
-  testCompile "org.spockframework:spock-core:0.7-groovy-2.0", {
-    exclude module: "groovy-all"
-  }
-  testCompile "junit:junit:4.11"
-  testCompile "org.hamcrest:hamcrest-library:1.3"
-  testCompile "com.google.guava:guava:14.0.1"
-  testCompile group: 'xml-resolver', name: 'xml-resolver', version: '1.2'
-}
-repositories {
-    mavenCentral()
-    maven {
-        url 'http://repo.gradle.org/gradle/libs-releases-local'
-    }
-}
-
 sourceSets {
     integTest {
-        groovy.srcDir file('src/integTest/groovy')
-        resources.srcDir file('src/integTest/resources')
-        compileClasspath = sourceSets.main.output + configurations.testRuntime
-        runtimeClasspath = output + compileClasspath
+        compileClasspath += sourceSets.main.output
+        runtimeClasspath += sourceSets.main.output
     }
+}
+
+configurations {
+    integTestImplementation.extendsFrom testImplementation
+    integTestRuntimeOnly.extendsFrom testRuntimeOnly
+}
+
+dependencies {
+    implementation gradleApi()
+    implementation localGroovy()
+    implementation "org.gradle:gradle-tooling-api:${gradle.gradleVersion}"
+    implementation "org.codehaus.mojo:nbm-maven-harness:8.2"
+    runtimeClasspath 'org.slf4j:slf4j-simple:1.7.5'
+
+    testImplementation "org.junit.jupiter:junit-jupiter-api:5.8.2"
+    testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:5.8.2"
+
+    testImplementation "org.spockframework:spock-core:2.0-groovy-3.0", {
+        exclude module: "groovy-all"
+    }
+    testImplementation 'org.hamcrest:hamcrest:2.2'
+    testImplementation "com.google.guava:guava:14.0.1"
+    testImplementation group: 'xml-resolver', name: 'xml-resolver', version: '1.2'
+
+    codenarc "org.codenarc:CodeNarc:2.2.0"
+    codenarc "org.codehaus.groovy:groovy-all:3.0.9"
+}
+repositories {
+    maven {
+        url 'https://repo.gradle.org/gradle/libs-releases'
+    }
+    mavenCentral()
 }
 
 def catalogPath = file('src/integTest/resources/catalog.xml').canonicalPath
+
+test {
+    useJUnitPlatform()
+}
 
 task integTest(type: Test) {
     description = 'Runs the integration tests.'
@@ -90,18 +89,18 @@ task integTest(type: Test) {
 
     systemProperty "xml.catalog.files", catalogPath
 
+    useJUnitPlatform()
 }
 
 task testJenkins(dependsOn: test) {
     description '=== Update the timestamp of the test results also if UP-TO-DATE ==='
     inputs.files test.outputs.files
-    doLast{
+    doLast {
         def timestamp = System.currentTimeMillis()
         testResultsDir.eachFile { it.lastModified = timestamp }
     }
 }
 check.dependsOn testJenkins, integTest
-
 
 publishing {
     publications {
@@ -121,30 +120,77 @@ publishing {
     }
     repositories {
         maven {
+            name 'LocalRepo'
             url uri("$buildDir/repo")
         }
     }
 }
 
-bintray {
-    // Bintray upload will only work if you have BinTray credentials
-    user = project.hasProperty('bintrayUser') ? project.bintrayUser : "bintray username"
-    key = project.hasProperty('bintrayKey') ? project.bintrayKey : "bintray key"
-    publications = ['mavenJava']
-    pkg {
-        repo = 'maven'
-        // userOrg = 'nbandroid'
-        name = 'gradle-nbm-plugin'
-        licenses = ['Apache-2.0']
-        desc = 'Gradle plugin to build NetBeans modules and RCP applications.'
-        websiteUrl = 'https://github.com/radimk/gradle-nbm-plugin'
-        issueTrackerUrl = 'https://github.com/radimk/gradle-nbm-plugin/issues'
-        vcsUrl = 'https://github.com/radimk/gradle-nbm-plugin.git'
-        labels = ['netbeans', 'gradle', 'build']
-        version.attributes = [ 'gradle-plugin': 'cz.kubacki.nbm:cz.kubacki.gradle.plugins:gradle-nbm-plugin' ]
-    }
-}
-
 idea.module {
     testSourceDirs += file('src/integTest/groovy')
+}
+
+codenarc {
+    toolVersion = '2.2.0'
+    configFile = rootProject.file('gradle/codenarc.groovy')
+    reportFormat = 'html'
+}
+
+codenarcMain {
+    compilationClasspath = sourceSets.main.compileClasspath + sourceSets.main.output
+}
+
+codenarcTest {
+    compilationClasspath = sourceSets.test.compileClasspath + sourceSets.test.output
+}
+
+codenarcIntegTest {
+    compilationClasspath = sourceSets.integTest.compileClasspath + sourceSets.integTest.output
+}
+
+tasks.register("qualityCheck") {
+    group = "Verification"
+    description = "Runs linters and code style checking tools (excluding tests)"
+    dependsOn tasks.classes, tasks.testClasses, tasks.integTestClasses, tasks.spotlessCheck
+    dependsOn tasks.codenarcMain, tasks.codenarcTest, tasks.codenarcIntegTest
+}
+
+spotless {
+    java {
+        target '**/*.java'
+        targetExclude "$buildDir/**/*.java"
+
+        importOrder('', 'javax', 'java', '\\#')
+        eclipse().configFile(rootProject.file('gradle/greclipse.properties'))
+
+        indentWithSpaces()
+        removeUnusedImports()
+        trimTrailingWhitespace()
+        endWithNewline()
+    }
+    groovy {
+        target '**/*.groovy'
+        targetExclude "$buildDir/**/*.groovy"
+        importOrder('', 'javax', 'java', '\\#')
+
+        indentWithSpaces()
+        trimTrailingWhitespace()
+        endWithNewline()
+    }
+    groovyGradle {
+        target('*.gradle')
+        targetExclude "$buildDir/**/*.gradle"
+
+        indentWithSpaces()
+        trimTrailingWhitespace()
+        endWithNewline()
+    }
+    format 'yaml', {
+        target("*.yml")
+        targetExclude "$buildDir/**/*"
+
+        trimTrailingWhitespace()
+        endWithNewline()
+        indentWithSpaces(2)
+    }
 }

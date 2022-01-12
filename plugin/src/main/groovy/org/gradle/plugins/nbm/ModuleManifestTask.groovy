@@ -9,7 +9,6 @@ import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
 
 import java.nio.file.Files
-import java.text.SimpleDateFormat
 import java.util.jar.Attributes
 import java.util.jar.JarFile
 import java.util.jar.Manifest
@@ -58,7 +57,7 @@ class ModuleManifestTask extends ConventionTask {
         Map<String, String> moduleDeps = new HashMap<>()
 
         def mainSourceSet = project.sourceSets.main
-        def compileConfig = project.configurations.findByName(mainSourceSet.compileConfigurationName).resolvedConfiguration
+        def compileConfig = project.configurations.findByName(mainSourceSet.runtimeClasspathConfigurationName).resolvedConfiguration
 
         HashSet<ResolvedArtifact> implArtifacts = new HashSet<>()
         project.configurations.nbimplementation.resolvedConfiguration.firstLevelModuleDependencies.each { ResolvedDependency it ->
@@ -78,14 +77,14 @@ class ModuleManifestTask extends ConventionTask {
                     JarFile jar = new JarFile(a.file)
                     def attrs = jar.manifest?.mainAttributes
                     def bundleName = attrs?.getValue(new Attributes.Name('Bundle-SymbolicName'))
-                    if(bundleName && bundleArtifacts.contains(a)) {
+                    if (bundleName && bundleArtifacts.contains(a)) {
                         moduleDeps.put(bundleName.split(';').first(), '')
                     } else {
                         def moduleName = attrs?.getValue(new Attributes.Name('OpenIDE-Module'))
                         def moduleVersion = attrs?.getValue(new Attributes.Name('OpenIDE-Module-Specification-Version'))
                         def implVersion = attrs?.getValue(new Attributes.Name('OpenIDE-Module-Implementation-Version'))
-                        if(moduleName && moduleVersion) {
-                            if(implArtifacts.contains(a))
+                        if (moduleName && moduleVersion) {
+                            if (implArtifacts.contains(a))
                                 moduleDeps.put(moduleName, " = $implVersion")
                             else
                                 moduleDeps.put(moduleName, " > $moduleVersion")
@@ -150,10 +149,10 @@ class ModuleManifestTask extends ConventionTask {
         if (javaDependency) {
             result.put('OpenIDE-Module-Java-Dependencies', javaDependency)
         }
-        
+
         println netbeansExt().autoupdateShowInClient
         result.put('AutoUpdate-Show-In-Client', String.valueOf(netbeansExt().autoupdateShowInClient))
-        
+
         def moduleInstall = netbeansExt().moduleInstall
         if (moduleInstall) {
             result.put('OpenIDE-Module-Install', moduleInstall.replace('.', '/') + '.class')
@@ -203,7 +202,7 @@ class ModuleManifestTask extends ConventionTask {
             if (attrValue != null) return
 
             // JAR but not NetBeans module
-            jarNames += 'ext/'+ (classpathExtFolder ? "$classpathExtFolder/" : "") + fvd.name
+            jarNames += 'ext/' + (classpathExtFolder ? "$classpathExtFolder/" : "") + fvd.name
         }
         jarNames.join(' ')
     }

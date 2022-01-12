@@ -1,4 +1,5 @@
 package org.gradle.plugins.nbm
+
 import org.apache.tools.ant.taskdefs.Taskdef
 import org.apache.tools.ant.types.FileSet
 import org.apache.tools.ant.types.Path
@@ -6,7 +7,11 @@ import org.gradle.api.file.CopySpec
 import org.gradle.api.file.FileCollection
 import org.gradle.api.file.FileTreeElement
 import org.gradle.api.internal.ConventionTask
-import org.gradle.api.tasks.*
+import org.gradle.api.tasks.InputFile
+import org.gradle.api.tasks.InputFiles
+import org.gradle.api.tasks.Optional
+import org.gradle.api.tasks.OutputDirectory
+import org.gradle.api.tasks.TaskAction
 
 import java.util.jar.Attributes
 import java.util.jar.JarFile
@@ -23,12 +28,13 @@ class NetBeansTask extends ConventionTask {
         project.extensions.nbm
     }
 
-    @Input
+    @InputFile
     File getInputModuleJarFile() {
         project.tasks.jar.archivePath
     }
 
-    @InputFiles @Optional
+    @InputFiles
+    @Optional
     FileCollection getClasspath() {
         return classpath
     }
@@ -74,9 +80,9 @@ class NetBeansTask extends ConventionTask {
         } else {
             timestamp.createNewFile()
         }
-        
+
         def modulesDir = new File(moduleDir, 'modules')
-        
+
         def classpathExtFolder = netbeansExt().classpathExtFolder
         def modulesExtDir = new File(modulesDir, 'ext' + (classpathExtFolder ? "/$classpathExtFolder" : ""))
 
@@ -109,15 +115,15 @@ class NetBeansTask extends ConventionTask {
         FileSet moduleFileSet = new FileSet()
         moduleFileSet.setDir(moduleDir)
         moduleFileSet.setIncludes('modules' + File.separator + moduleJarName)
-        
-        if(netbeansExt().isAutoload()) {
+
+        if (netbeansExt().isAutoload()) {
             moduleXmlTask.addAutoload(moduleFileSet)
-        }else if(netbeansExt().isEager()) {
+        } else if (netbeansExt().isEager()) {
             moduleXmlTask.addEager(moduleFileSet)
-        }else {
+        } else {
             moduleXmlTask.addEnabled(moduleFileSet)
         }
-        
+
         moduleXmlTask.execute()
 
         def nbTask = antBuilder.antProject.createTask('genlist')
@@ -145,4 +151,3 @@ class NetBeansTask extends ConventionTask {
         return getAnt();
     }
 }
-

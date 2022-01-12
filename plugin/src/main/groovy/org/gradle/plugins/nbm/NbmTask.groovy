@@ -1,4 +1,5 @@
 package org.gradle.plugins.nbm
+
 import org.apache.tools.ant.taskdefs.Taskdef
 import org.apache.tools.ant.types.Path
 import org.gradle.api.file.FileCollection
@@ -77,15 +78,15 @@ class NbmTask extends ConventionTask {
             signature.alias = keyStore.username
             signature.storepass = keyStore.password
         }
-		
-		// The CreateNbmMojo class tests for "extra" (the default cluster)
-		// and will not set the target cluster to that value.  We should do the
-		// same.
-		String cluster = nbm.cluster ?: "extra"
-		if (!cluster.equals("extra")) {
-			makenbm.setTargetcluster(cluster)
-		}
-		
+
+        // The CreateNbmMojo class tests for "extra" (the default cluster)
+        // and will not set the target cluster to that value.  We should do the
+        // same.
+        String cluster = nbm.cluster ?: "extra"
+        if (!cluster.equals("extra")) {
+            makenbm.setTargetcluster(cluster)
+        }
+
         makenbm.execute()
     }
 
@@ -100,4 +101,3 @@ class NbmTask extends ConventionTask {
         return getAnt();
     }
 }
-

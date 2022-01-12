@@ -1,4 +1,5 @@
 package org.gradle.plugins.nbm
+
 import org.gradle.api.Action
 import org.gradle.api.Plugin
 import org.gradle.api.Project
@@ -44,24 +45,25 @@ public class NbmPlugin implements Plugin<Project> {
             task.conventionMapping.moduleBuildDir = { convention.moduleBuildDir }
         }
         project.getTasks().withType(NetBeansTask.class, new Action<NetBeansTask>() {
-            public void execute(NetBeansTask task) {
+            void execute(NetBeansTask task) {
                 task.dependsOn(new Callable() {
-                    public Object call() throws Exception {
+                    @Override
+                    Object call() throws Exception {
                         return project.getConvention().getPlugin(JavaPluginConvention.class).getSourceSets().getByName(
-                                SourceSet.MAIN_SOURCE_SET_NAME).getRuntimeClasspath();
+                            SourceSet.MAIN_SOURCE_SET_NAME).getRuntimeClasspath();
                     }
                 });
                 task.classpath({
-                        FileCollection runtimeClasspath = project.getConvention().getPlugin(JavaPluginConvention.class)
-                                .getSourceSets().getByName(SourceSet.MAIN_SOURCE_SET_NAME).getRuntimeClasspath();
+                    FileCollection runtimeClasspath = project.getConvention().getPlugin(JavaPluginConvention.class)
+                        .getSourceSets().getByName(SourceSet.MAIN_SOURCE_SET_NAME).getRuntimeClasspath();
                     Configuration providedRuntime = project.getConfigurations().getByName(
-                            PROVIDED_RUNTIME_CONFIGURATION_NAME);
+                        PROVIDED_RUNTIME_CONFIGURATION_NAME);
                     Configuration implementation = project.getConfigurations().getByName(
-                            IMPLEMENTATION_CONFIGURATION_NAME);
+                        IMPLEMENTATION_CONFIGURATION_NAME);
                     Configuration bundle = project.getConfigurations().getByName(
-                            BUNDLE_CONFIGURATION_NAME);
-                        return runtimeClasspath.minus(providedRuntime).minus(implementation).minus(bundle);
-                    });
+                        BUNDLE_CONFIGURATION_NAME);
+                    return runtimeClasspath.minus(providedRuntime).minus(implementation).minus(bundle);
+                });
             }
         });
 
@@ -103,7 +105,7 @@ public class NbmPlugin implements Plugin<Project> {
                 workingDir project.buildDir
 
                 List args = new LinkedList()
-                args.addAll([ project.netBeansExecutable, '--userdir', testUserDir])
+                args.addAll([project.netBeansExecutable, '--userdir', testUserDir])
 
                 String debuggerPort = null;
                 if (project.hasProperty('debuggerJpdaPort')) {
@@ -113,8 +115,7 @@ public class NbmPlugin implements Plugin<Project> {
                 if (debuggerPort != null) {
                     args.add('-J-Xdebug')
                     args.add("-J-Xrunjdwp:transport=dt_socket,server=n,address=${debuggerPort}")
-                }
-                else if (debug) {
+                } else if (debug) {
                     def nbmDebugPort = '5006'
                     if (project.hasProperty(nbmDebugPort)) {
                         nbmDebugPort = project.nbmDebugPort.trim()
@@ -122,8 +123,7 @@ public class NbmPlugin implements Plugin<Project> {
                     args.add("-J-agentlib:jdwp=transport=dt_socket,server=y,address=${nbmDebugPort}")
                 }
                 commandLine args
-            }
-            else {
+            } else {
                 doFirst {
                     throw new IllegalStateException('The property netBeansExecutable is not specified, you should define it in ~/.gradle/gradle.properties')
                 }
@@ -138,19 +138,19 @@ public class NbmPlugin implements Plugin<Project> {
 
     public void configureConfigurations(ConfigurationContainer configurationContainer) {
         Configuration provideCompileConfiguration = configurationContainer.create(PROVIDED_COMPILE_CONFIGURATION_NAME).setVisible(false).
-                setDescription("Additional compile classpath for libraries that should not be part of the NBM archive.");
+            setDescription("Additional compile classpath for libraries that should not be part of the NBM archive.");
         Configuration provideRuntimeConfiguration = configurationContainer.create(PROVIDED_RUNTIME_CONFIGURATION_NAME).setVisible(false).
-                extendsFrom(provideCompileConfiguration).
-                setDescription("Additional runtime classpath for libraries that should not be part of the NBM archive.");
+            extendsFrom(provideCompileConfiguration).
+            setDescription("Additional runtime classpath for libraries that should not be part of the NBM archive.");
         Configuration implementationConfiguration = configurationContainer.create(IMPLEMENTATION_CONFIGURATION_NAME).setVisible(false).
-                setDescription("NBM module's implementation dependencies");
+            setDescription("NBM module's implementation dependencies");
         Configuration bundleConfiguration = configurationContainer.create(BUNDLE_CONFIGURATION_NAME).setVisible(false).
-                setDescription("NBM module's dependencies on OSGi bundles");
-        configurationContainer.getByName(JavaPlugin.COMPILE_CONFIGURATION_NAME)
-                .extendsFrom(provideCompileConfiguration)
-                .extendsFrom(implementationConfiguration)
-                .extendsFrom(bundleConfiguration);
-        configurationContainer.getByName(JavaPlugin.RUNTIME_CONFIGURATION_NAME).extendsFrom(provideRuntimeConfiguration);
+            setDescription("NBM module's dependencies on OSGi bundles");
+        configurationContainer.getByName(JavaPlugin.IMPLEMENTATION_CONFIGURATION_NAME)
+            .extendsFrom(provideCompileConfiguration)
+            .extendsFrom(implementationConfiguration)
+            .extendsFrom(bundleConfiguration);
+        configurationContainer.getByName(JavaPlugin.RUNTIME_CLASSPATH_CONFIGURATION_NAME).extendsFrom(provideRuntimeConfiguration);
     }
 
     private configure(Project project) {
@@ -166,6 +166,12 @@ public class NbmPlugin implements Plugin<Project> {
         def generatedClasses = "${project.buildDir}/generated-resources/main"
         def generatedResources = "${project.buildDir}/generated-resources/resources"
         def generatedOutput = "${project.buildDir}/generated-resources/output"
+
+        mergeTask.inputDirectories.add(new File(generatedClasses))
+        mergeTask.inputDirectories.add(new File(generatedResources))
+        mergeTask.outputDir = new File(generatedOutput)
+        mergeTask.dependsOn project.tasks.findByName('compileJava')
+        mergeTask.dependsOn project.tasks.findByName('processResources')
 
         project.sourceSets.main.output.dir(generatedOutput, builtBy: 'mergeProperties')
         def compileJavaTask = project.tasks.getByName('compileJava')
@@ -202,7 +208,6 @@ public class NbmPlugin implements Plugin<Project> {
                     it.file.delete()
                 }
             }
-
         }
     }
 }
